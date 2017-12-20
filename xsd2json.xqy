@@ -78,6 +78,15 @@ declare function xsd2json:schema-from-qname($qname as xs:string, $model as map(*
         return map:get($model, $ns)
 };
 
+declare function xsd2json:is-xsd-datatype($name as xs:string) as xs:boolean {
+    try {
+        let $qname as xs:QName := xs:QName($name)
+        return (fn:namespace-uri-from-QName($qname) eq "http://www.w3.org/2001/XMLSchema")
+    } catch * {
+        fn:false()
+    }
+};
+
 (:~
  :
  : Find postfix of the QName.
@@ -87,9 +96,7 @@ declare function xsd2json:schema-from-qname($qname as xs:string, $model as map(*
  : @param   $qname the name of the item used to locate the schema
  :)
 declare function xsd2json:postfix-from-qname($qname as xs:string) as xs:string? {
-    if (fn:contains($qname, ':'))
-    then fn:substring-after($qname, ':')
-    else $qname
+    fn:local-name-from-QName(xs:QName($qname))
 };
 
 (:~
@@ -280,20 +287,20 @@ declare function xsd2json:dispatch($node as node()?, $model as map(*)) as map(*)
         case element(xs:union) return xsd2json:union($node, $model)
         case element(xs:unique) return xsd2json:unique($node, $model)
         case element(xs:whiteSpace) return xsd2json:whiteSpace($node, $model)
-        default return xsd2json:recurse($node, $model) 
+        default return xsd2json:passthru($node, $model) 
     else map { }
 };
 
 (:~
  :
- : The recurse() function recurses through a given node's children, handing each of them back to the main typeswitch operation.
+ : The passthru() function recurses through a given node's children, handing each of them back to the main typeswitch operation.
  :
  : @author  Loren Cahlander
  : @version 1.0
  : @param   $node the current node being processed
  : @param   $model a map(*) used for passing additional information between the levels
  :)
-declare function xsd2json:recurse($node as node()?, $model as map(*)) as map(*) {
+declare function xsd2json:passthru($node as node()?, $model as map(*)) as map(*) {
     map:merge(
         if ($node) 
         then 
@@ -317,7 +324,7 @@ declare function xsd2json:require-dispatch($node as node()?, $model as map(*)) a
     typeswitch($node) 
         case element(xs:attribute) return xsd2json:require-attribute($node, $model)
         case element(xs:element) return xsd2json:require-element($node, $model)
-        default return xsd2json:require-recurse($node, $model) 
+        default return xsd2json:require-passthru($node, $model) 
     else ()
 };
 
@@ -330,7 +337,7 @@ declare function xsd2json:require-dispatch($node as node()?, $model as map(*)) a
  : @param   $node the current node being processed
  : @param   $model a map(*) used for passing additional information between the levels
  :)
-declare function xsd2json:require-recurse($node as node()?, $model as map(*)) as xs:string* {
+declare function xsd2json:require-passthru($node as node()?, $model as map(*)) as xs:string* {
     if ($node) then for $cnode in $node/* return xsd2json:require-dispatch($cnode, $model) else ()
 };
 
@@ -398,7 +405,7 @@ declare function xsd2json:maxOccurs-dispatch($node as node()?, $model as map(*))
     if ($node) then 
     typeswitch($node) 
         case element(xs:element) return xsd2json:maxOccurs-element($node, $model)
-        default return xsd2json:maxOccurs-recurse($node, $model) 
+        default return xsd2json:maxOccurs-passthru($node, $model) 
     else map { }
 };
 
@@ -411,7 +418,7 @@ declare function xsd2json:maxOccurs-dispatch($node as node()?, $model as map(*))
  : @param   $node the current node being processed
  : @param   $model a map(*) used for passing additional information between the levels
  :)
-declare function xsd2json:maxOccurs-recurse($node as node()?, $model as map(*)) as map(*) {
+declare function xsd2json:maxOccurs-passthru($node as node()?, $model as map(*)) as map(*) {
     map:merge(if ($node) then for $cnode in $node/* return xsd2json:maxOccurs-dispatch($cnode, $model) else ())
 };
 
@@ -480,10 +487,10 @@ declare function xsd2json:extension($node as node(), $model as map(*)) as map(*)
 
  :)
     map:merge((
-                    if (fn:starts-with($node/@base, 'xs:') or fn:starts-with($node/@base, 'xsd:'))
+            if (xsd2json:is-xsd-datatype($node/@base))
             then (
                     xsd2json:dataType($node/@base), 
-                    xsd2json:recurse($node, $model)
+                    xsd2json:passthru($node, $model)
                  )
             else
                 let $prefix := fn:substring-before($node/@base, ':')
@@ -523,7 +530,7 @@ declare function xsd2json:extension($node as node(), $model as map(*)) as map(*)
 
         
         if ($node/xs:choice) then xsd2json:choice($node/xs:choice, $model)
-        else xsd2json:recurse($node, $model)
+        else xsd2json:passthru($node, $model)
     ))
 };
 
@@ -542,7 +549,7 @@ declare function xsd2json:annotation($node as node(), $model as map(*)) as map(*
  : Child Elements:
 
  :)
-    map:merge(xsd2json:recurse($node, $model))
+    map:merge(xsd2json:passthru($node, $model))
 };
 
 (:~
@@ -560,7 +567,7 @@ declare function xsd2json:any($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -578,7 +585,7 @@ declare function xsd2json:anyAttribute($node as node(), $model as map(*)) as map
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -596,7 +603,7 @@ declare function xsd2json:appinfo($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -618,13 +625,13 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
     then 
         if ($node/@type)
         then 
-            if (fn:starts-with($node/@type, 'xs:') or fn:starts-with($node/@type, 'xsd:'))
+            if (xsd2json:is-xsd-datatype($node/@type))
             then map:entry(
                         '@' || $node/@name/string(), 
                         map:merge((
                                 map:entry('isAttribute', fn:true()),
                                 xsd2json:dataType($node/@type), 
-                                xsd2json:recurse($node, $model)
+                                xsd2json:passthru($node, $model)
                                 ))
                  )
             else
@@ -642,7 +649,7 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
                             else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
                     else map:merge(())
                     
-        else map:entry('@' || $node/@name/string(), map:merge(xsd2json:recurse($node, $model)))
+        else map:entry('@' || $node/@name/string(), map:merge(xsd2json:passthru($node, $model)))
     else 
         let $prefix := fn:substring-before($node/@ref, ':')
         let $postfix := fn:substring-after($node/@ref, ':')
@@ -676,7 +683,7 @@ declare function xsd2json:attributeGroup($node as node(), $model as map(*)) as m
  :)
     if ($node/@name)
     then 
-        xsd2json:recurse($node, $model)
+        xsd2json:passthru($node, $model)
     else 
         let $prefix := fn:substring-before($node/@ref, ':')
         let $postfix := fn:substring-after($node/@ref, ':')
@@ -718,8 +725,8 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                     case element(xs:annotation) return ()
                     default
                         return
-                            let $required := xsd2json:require-recurse($child, $model)
-                            let $arrays := xsd2json:maxOccurs-recurse($child, $model)
+                            let $required := xsd2json:require-passthru($child, $model)
+                            let $arrays := xsd2json:maxOccurs-passthru($child, $model)
                             return 
                                 map:merge((
                                     map:entry(
@@ -827,11 +834,9 @@ declare function xsd2json:documentation($node as node(), $model as map(*)) as ma
  : @param   $type the name of the XML Schema data type
  :)
 declare function xsd2json:dataType($type as xs:string) as map(*) {
-    let $after := (fn:substring-after($type, ':'), 'string')[1]
-    return
     map:merge((
         map:entry('xsdType', $type),
-        switch($after) 
+        switch(fn:local-name-from-QName(xs:QName($type))) 
             case 'string' return map {
                 'type': 'string'
             }
@@ -1049,12 +1054,12 @@ declare function xsd2json:dataType($type as xs:string) as map(*) {
  : @param   $model a map(*) used for passing additional information between the levels
  :)
 declare function xsd2json:element-type($node as node(), $model as map(*)) as map(*) {
-    if (fn:starts-with($node/@type, 'xs:') or fn:starts-with($node/@type, 'xsd:'))
+    if (xsd2json:is-xsd-datatype($node/@type))
     then (:map:entry(
                 $node/@name/string(), 
               :)  map:merge((
                         xsd2json:dataType($node/@type), 
-                        xsd2json:recurse($node, $model)
+                        xsd2json:passthru($node, $model)
                         ))
 (:         )
 :)    else
@@ -1121,7 +1126,7 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
             let $content :=             if ($node/@type)
             then xsd2json:element-type($node, $model)
                         
-            else  map:merge(xsd2json:recurse($node, $model))
+            else  map:merge(xsd2json:passthru($node, $model))
             return
             map:entry($node/@name/string(),
                         switch ($maxOccurs)
@@ -1186,7 +1191,7 @@ declare function xsd2json:field($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1224,7 +1229,7 @@ declare function xsd2json:group($node as node(), $model as map(*)) as map(*) {
  :)
     if ($node/@name)
     then
-        xsd2json:recurse($node, $model)
+        xsd2json:passthru($node, $model)
     else
         let $schema := xsd2json:schema-from-ref($node, $model)
         let $postfix := xsd2json:postfix-from-ref($node)
@@ -1286,7 +1291,7 @@ declare function xsd2json:key($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1304,7 +1309,7 @@ declare function xsd2json:keyref($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1497,7 +1502,7 @@ declare function xsd2json:notation($node as node(), $model as map(*)) as map(*) 
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1533,7 +1538,7 @@ declare function xsd2json:redefine($node as node(), $model as map(*)) as map(*) 
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1553,10 +1558,10 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
 
  :)
     map:merge((
-            if (fn:starts-with($node/@base, 'xs:') or fn:starts-with($node/@base, 'xsd:'))
+            if (xsd2json:is-xsd-datatype($node/@base))
             then (
                     xsd2json:dataType($node/@base), 
-                    xsd2json:recurse($node, $model)
+                    xsd2json:passthru($node, $model)
                  )
             else
                 let $prefix := fn:substring-before($node/@base, ':')
@@ -1616,7 +1621,7 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
                     )
                     )
                 else (),
-                xsd2json:recurse($node, $model)
+                xsd2json:passthru($node, $model)
     ))
 };
 
@@ -1635,7 +1640,7 @@ declare function xsd2json:schema($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1666,7 +1671,7 @@ declare function xsd2json:selector($node as node(), $model as map(*)) as map(*) 
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1690,11 +1695,11 @@ declare function xsd2json:sequence($node as node(), $model as map(*)) as map(*) 
     then
     map:merge((
         map:entry('type', 'array'),
-        map:entry('items', array { map:merge(xsd2json:recurse($node, $model)) } )
+        map:entry('items', array { map:merge(xsd2json:passthru($node, $model)) } )
     ))
     else
-        let $required := xsd2json:require-recurse($node, $model)
-        let $arrays := xsd2json:maxOccurs-recurse($node, $model)
+        let $required := xsd2json:require-passthru($node, $model)
+        let $arrays := xsd2json:maxOccurs-passthru($node, $model)
         return
             map:merge((
                 map:entry('type', 'object'),
@@ -1756,7 +1761,7 @@ declare function xsd2json:simpleType($node as node(), $model as map(*)) as map(*
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
@@ -1822,7 +1827,7 @@ declare function xsd2json:unique($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    xsd2json:recurse($node, $model)
+    xsd2json:passthru($node, $model)
 };
 
 (:~
