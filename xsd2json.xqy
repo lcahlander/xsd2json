@@ -66,7 +66,7 @@ return
  : @param   $qname the name of the item used to locate the schema
  : @param   $model a map(*) used for passing additional information between the levels
  :)
-declare function xsd2json:schema-from-qname($qname as xs:string, $model as map(*)) as node() {
+declare function xsd2json:schema-from-qname($node as node(), $qname as xs:string, $model as map(*)) as node() {
     if (fn:contains($qname, ':'))
     then 
         let $prefix := fn:substring-before($qname, ':')
@@ -109,7 +109,7 @@ declare function xsd2json:postfix-from-qname($qname as xs:string) as xs:string? 
  : @param   $model a map(*) used for passing additional information between the levels
  :)
 declare function xsd2json:schema-from-ref($node as node(), $model as map(*)) as node() {
-    xsd2json:schema-from-qname($node/@ref)
+    xsd2json:schema-from-qname($node, $node/@ref, $model)
 };
 
 (:~
@@ -1356,14 +1356,17 @@ declare function xsd2json:list($node as node(), $model as map(*)) as map(*) {
             xsd2json:annotation($node/xs:annotation, $model)
         else
             (),
-        map:entry('items', array {
-            if ($node/@itemType)
-            then 
-                xsd2json:dataType($node/@itemType)
-            else
-                for $simpleType in $node/xs:simpleType
-                return xsd2json:simpleType($simpleType, $model)
-        }
+        map:entry(
+            'items', 
+            array {
+                if ($node/@itemType)
+                then 
+                    xsd2json:dataType($node/@itemType)
+                else
+                    for $simpleType in $node/xs:simpleType
+                    return xsd2json:simpleType($simpleType, $model)
+            }
+        )
     ))
 };
 
@@ -1798,17 +1801,17 @@ declare function xsd2json:union($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    map:union((
+    map:merge((
     
         (: If the attribute memberTypes is populated, then tokenize the attribute and get the simpleType and process :)
         for $memberType in fn:tokenize($node/@memberTypes/string(), ' ')
-        let $schema := xsd2json:schema-from-qname($memberType, $model)
+        let $schema := xsd2json:schema-from-qname($node, $memberType, $model)
         let $simpleType := $schema/xs:simpleType[@name = $memberType]
         return xsd2json:dispatch($simpleType, $model),
         
         (: If there are multiple simpleTypes within this union, then process each, ignoring the annotation :)
         for $simpleType in $node/xs:SimpleType
-        return xsd2json:dispatch($simpleType, $model),
+        return xsd2json:dispatch($simpleType, $model)
     ))
 };
 
