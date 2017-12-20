@@ -1065,7 +1065,7 @@ declare function xsd2json:element-type($node as node(), $model as map(*)) as map
 :)    else
         let $prefix := fn:substring-before($node/@type, ':')
         let $postfix := fn:substring-after($node/@type, ':')
-        let $ns := map:get($model, $prefix)
+        let $ns := (map:get($model, $prefix), 'target')[1]
         let $schema := map:get($model, $ns)
         return
             if ($schema//xs:complexType[@name = $postfix])
