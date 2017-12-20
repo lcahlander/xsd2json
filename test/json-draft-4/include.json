@@ -1,0 +1,18 @@
+{
+  "allOf": [
+    {
+      "$ref": "#/definitions/myType"
+    }
+  ],
+  "definitions": {
+    "myType": {
+      "type": "object",
+      "properties": {
+        "dog": {
+          "type": "string"
+        }
+      },
+      "required": ["dog"]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="pets">
+    <xs:attribute name="amount" type="xs:integer" use="required" default="42" />
+  </xs:complexType>
+</xs:schema>

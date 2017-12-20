@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="complexType_name.xsd" />
+
+  <xs:element name="pet" type="myType" />
+</xs:schema>

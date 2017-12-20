@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="dog" type="Pets" />
+
+  <xs:simpleType name="Pets">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="cat" />
+      <xs:enumeration value="dog" />
+      <xs:enumeration value="parrot" />
+      <xs:enumeration value="hamster" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
