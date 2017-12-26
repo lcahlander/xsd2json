@@ -853,9 +853,11 @@ declare function xsd2json:documentation($node as node(), $model as map(*)) as ma
  : @param   $type the name of the XML Schema data type
  :)
 declare function xsd2json:dataType($type as xs:string) as map(*) {
+    let $xsdType := fn:local-name-from-QName(xs:QName($type))
+    return
     map:merge((
-        map:entry('xsdType', $type),
-        switch(fn:local-name-from-QName(xs:QName($type))) 
+        map:entry('xsdType', $xsdType),
+        switch($xsdType) 
             case 'string' return map {
                 'type': 'string'
             }
@@ -969,12 +971,12 @@ declare function xsd2json:dataType($type as xs:string) as map(*) {
                 'pattern': '^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?=\d+[HMS])(\d+H)?(\d+M)?(\d+S)?)?$'
             }
             case 'dateTime' return map {
-                  "type": "string",
-                  "pattern": "^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))(T((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$"
+                  'type': 'string',
+                  'pattern': '^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))(T((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$'
             }
             case 'date' return map {
                 'type': 'string',
-                'pattern': "^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$"
+                'pattern': '^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$'
             }
             case 'time' return map {
                 'type': 'string',
@@ -1055,10 +1057,29 @@ declare function xsd2json:dataType($type as xs:string) as map(*) {
                 }
             } 
             
-            case 'token' return map { 'type': 'string' }
-            case 'decimal' return map { 'type': 'number' }
-            case 'boolean' return map { 'type': 'boolean' }
-            default return map:entry('type', $type)
+            case 'anySimpleType' return map {
+                'oneOf': array {
+                    map { 'type': 'integer' },
+                    map { 'type': 'string' },
+                    map { 'type': 'number' },
+                    map { 'type': 'boolean' },
+                    map { 'type': 'null' }
+                }
+            }
+
+            case 'token' return map {                 
+                'type': 'string' 
+            }
+
+            case 'decimal' return map {                 
+                'type': 'number' 
+            }
+            case 'boolean' return map {
+                'type': 'boolean' 
+            }
+            default return map {
+                'type': $type 
+            }
     ))
     
 };
@@ -1127,7 +1148,7 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
         then map:entry(
                         $node/@name/string(), 
                         map:merge((
-                            map:entry("abstract", fn:true()),
+                            map:entry('abstract', fn:true()),
                             for $prefix in xsd2json:prefixes-from-namespace(fn:root($node)/@targetNamespace/string(), $model)
                             return map:for-each($model, function($k, $v) {
                                                             try {
@@ -1625,7 +1646,7 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
                 if ($node/xs:enumeration)
                 then (
                     map:entry(
-                        'xsdenum', 
+                        'xsdEnum', 
                         array { 
                             for $enumeration in $node/xs:enumeration 
                             return map:merge((
