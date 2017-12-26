@@ -1,3 +1,15 @@
 {
-  "type": "integer"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"dog": {
+        "type": "integer",
+        "xsdType": "xs:short",
+        "minimum": -32768,
+        "maximum": 32767,
+        "exclusiveMinimum": false,
+        "exclusiveMaximum": false
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "output.json#"
 }

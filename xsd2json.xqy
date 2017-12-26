@@ -48,12 +48,31 @@ return
     map:entry('id', if (map:contains($options, 'schemaId')) then map:get($options, 'schemaId') || '#' else 'output.json#'),
     map:entry('$schema', 'http://json-schema.org/draft-04/schema#'),
     map:entry('version', '0.0.1'),
-    map:entry('description', $base/xs:annotation/xs:documentation/string()),
-    map:entry('type', 'object'),
-    map:entry('properties', map:merge((
-        for $element in $base/xs:element
-        return xsd2json:element($element, $m)
-    ))),
+    if ($base/xs:annotation/xs:documentation)
+    then
+        map:entry('description', $base/xs:annotation/xs:documentation/string())
+    else
+        (),
+    if (fn:count($base/xs:element) eq 1)
+    then
+    (
+        map:entry('type', 'object'),
+        map:entry(
+            'properties', 
+            xsd2json:element($base/xs:element, $m)
+        )
+    )
+    else
+    (
+        map:entry('type', 'object'),
+        map:entry(
+            'properties', 
+            map:merge((
+                for $element in $base/xs:element
+                return xsd2json:element($element, $m)
+            ))
+        )
+    ),
     map:entry('additionalProperties', fn:false())
 ))};
 

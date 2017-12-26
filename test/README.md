@@ -11,5 +11,5 @@ Each file in the `xsd` directory will be converted to a JSON Schema instance. It
 
 ### Validate tested JSON output
 
-As the expected JSON output files in the `json` subfolder are created manually it might be useful to check if they really satisfy the [JSON Schema Core Meta-Schema](http://json-schema.org/schema), i.e. are valid JSON Schema instances.
+As the expected JSON output files in the `json-draft-4` subfolder are created manually it might be useful to check if they really satisfy the [JSON Schema Core Meta-Schema](http://json-schema.org/schema), i.e. are valid JSON Schema instances.
 
