@@ -544,7 +544,7 @@ declare function xsd2json:extension($node as node(), $model as map(*)) as map(*)
     map:merge((
             if (xsd2json:is-xsd-datatype($node/@base))
             then (
-                    xsd2json:dataType($node/@base), 
+                    xsd2json:dataType($node/@base, $model), 
                     xsd2json:passthru($node, $model)
                  )
             else
@@ -685,7 +685,7 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
                         '@' || $node/@name/string(), 
                         map:merge((
                                 map:entry('isAttribute', fn:true()),
-                                xsd2json:dataType($node/@type), 
+                                xsd2json:dataType($node/@type, $model), 
                                 xsd2json:passthru($node, $model)
                                 ))
                  )
@@ -894,8 +894,23 @@ declare function xsd2json:documentation($node as node(), $model as map(*)) as ma
  : @author  Loren Cahlander
  : @version 1.0
  : @param   $type the name of the XML Schema data type
+ : @param   $model - If the map contains the key-value pair 'restrictive' and false then get the non-restrictive type mapping 
  :)
-declare function xsd2json:dataType($type as xs:string) as map(*) {
+declare function xsd2json:dataType($type as xs:string, $model as map(*)) as map(*) {
+    if (fn:not(map:contains($model, 'restrictive')) or map:get($model, 'restrictive'))
+    then xsd2json:dataType-restrictive($type)
+    else xsd2json:dataType-non-restrictive($type)
+};
+
+(:~
+ :
+ : Return the restrictive JSON Schema equivalent for the requested XML Schema data type
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $type the name of the XML Schema data type
+ :)
+declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
     let $xsdType := xsd2json:prefix-from-qname($type)
     return
     map:merge((
@@ -1129,6 +1144,208 @@ declare function xsd2json:dataType($type as xs:string) as map(*) {
 
 (:~
  :
+ : Return the non-restrictive JSON Schema equivalent for the requested XML Schema data type
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $type the name of the XML Schema data type
+ :)
+declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*) {
+    let $xsdType := xsd2json:prefix-from-qname($type)
+    return
+    map:merge((
+        map:entry('xsdType', $xsdType),
+        switch($xsdType) 
+            case 'string' return map {
+                'type': 'string'
+            }
+            case 'normalizedString' return map {
+                'type': 'string'
+            }
+            case 'token' return map {
+                'type': 'string'
+            }
+            case 'base64Binary' return map {
+                'type': 'string'
+            }
+            case 'hexBinary' return map {
+                'type': 'string'
+            }
+            case 'integer' return map {
+                'type': 'integer'
+            }
+            case 'positiveInteger' return map {
+                'type': 'integer',
+                'minimum': 0,
+                'exclusiveMinimum': fn:true()
+            }
+            case 'negativeInteger' return map {
+                'type': 'integer',
+                'maximum': 0,
+                'exclusiveMaximum': fn:true()
+            }
+            case 'nonNegativeInteger' return map {
+                'type': 'integer',
+                'minimum': 0,
+                'exclusiveMinimum': fn:false()
+            }
+            case 'nonPositiveInteger' return map {
+                'type': 'integer',
+                'maximum': 0,
+                'exclusiveMaximum': fn:false()
+            }
+            case 'long' return map {
+                'type': 'integer'
+            }
+            case 'unsignedLong' return map {
+                'type': 'integer',
+                'minimum': 0,
+                'exclusiveMinimum': fn:false()
+            }
+            case 'int' return map {
+                'type': 'integer'
+            }
+            case 'unsignedInt' return map {
+                'type': 'integer',
+                'minimum': 0,
+                'exclusiveMinimum': fn:false()
+            }
+            case 'short' return map {
+                'type': 'integer'
+            }
+            case 'unsignedShort' return map {
+                'type': 'integer',
+                'minimum': 0,
+                'exclusiveMinimum': fn:false()
+            }
+            case 'byte' return map {
+                'type': 'integer'
+            }
+            case 'unsignedByte' return map {
+                'type': 'integer',
+                'minimum': 0,
+                'exclusiveMinimum': fn:false()
+            }
+            case 'decimal' return map {
+                'type': 'number'
+            }
+            case 'float' return map {
+                'type': 'number'
+            }
+            case 'double' return map {
+                'type': 'number'
+            }
+            case 'Boolean' return map {
+                'type': 'boolean'
+            }
+            case 'duration' return map {
+                'type': 'string',
+                'pattern': '^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?=\d+[HMS])(\d+H)?(\d+M)?(\d+S)?)?$'
+            }
+            case 'dateTime' return map {
+                  'type': 'string',
+                  'pattern': '^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))(T((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$'
+            }
+            case 'date' return map {
+                'type': 'string',
+                'pattern': '^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$'
+            }
+            case 'time' return map {
+                'type': 'string',
+                'pattern': '^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d)(.(\d{3}))?)?$'
+            }
+            case 'gYear' return map {
+                'type': 'string',
+                'pattern': '^(19|20)\d\d$'
+            }
+            case 'gYearMonth' return map {
+                'type': 'string',
+                'pattern': '^(19|20)\d\d-(0[1-9]|1[012])$'
+            }
+            case 'gMonth' return map {
+                'type': 'string',
+                'pattern': '^(0[1-9]|1[012])$'
+            }
+            case 'gMonthDay' return map {
+                'type': 'string',
+                'pattern': '^(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$'
+            }
+            case 'gDay' return map {
+                'type': 'string',
+                'pattern': '^(0[1-9]|[12][0-9]|3[01])$'
+            }
+            case 'Name' return map {
+                'type': 'string'
+            }
+            case 'QName' return map {
+                'type': 'string'
+            }
+            case 'NCName' return map {
+                'type': 'string'
+            }
+            case 'anyURI' return map {
+                'type': 'string'
+            }
+            case 'language' return map {
+                'type': 'string'
+            }
+            case 'ID' return map {
+                'type': 'string'
+            }
+            case 'IDREF' return map {
+                'type': 'string'
+            }
+            case 'IDREFS' return map {
+                'type': 'string'
+            }
+            case 'ENTITY' return map {
+                'type': 'string'
+            }
+            case 'ENTITIES' return map {
+                'type': 'array',
+                'items': map {
+                    'type': 'string'
+                }
+            } 
+            case 'NMTOKEN' return map {
+                'type': 'string'
+            }
+            case 'NMTOKENS' return map {
+                'type': 'array',
+                'items': map {
+                    'type': 'string'
+                }
+            } 
+            
+            case 'anySimpleType' return map {
+                'oneOf': array {
+                    map { 'type': 'integer' },
+                    map { 'type': 'string' },
+                    map { 'type': 'number' },
+                    map { 'type': 'boolean' },
+                    map { 'type': 'null' }
+                }
+            }
+
+            case 'token' return map {                 
+                'type': 'string' 
+            }
+
+            case 'decimal' return map {                 
+                'type': 'number' 
+            }
+            case 'boolean' return map {
+                'type': 'boolean' 
+            }
+            default return map {
+                'type': $type 
+            }
+    ))
+    
+};
+
+(:~
+ :
  : TODO: Document this function.
  :
  : @author  Loren Cahlander
@@ -1141,7 +1358,7 @@ declare function xsd2json:element-type($node as node(), $model as map(*)) as map
     if (xsd2json:is-xsd-datatype($node/@type))
     then 
         (
-            xsd2json:dataType($node/@type), 
+            xsd2json:dataType($node/@type, $model),
             xsd2json:passthru($node, $model)
         )
     else
@@ -1454,7 +1671,7 @@ declare function xsd2json:list($node as node(), $model as map(*)) as map(*) {
             array {
                 if ($node/@itemType)
                 then 
-                    xsd2json:dataType($node/@itemType)
+                    xsd2json:dataType($node/@itemType, $model)
                 else
                     for $simpleType in $node/xs:simpleType
                     return xsd2json:simpleType($simpleType, $model)
@@ -1656,7 +1873,7 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
     map:merge((
             if (xsd2json:is-xsd-datatype($node/@base))
             then (
-                    xsd2json:dataType($node/@base), 
+                    xsd2json:dataType($node/@base, $model), 
                     xsd2json:passthru($node, $model)
                  )
             else
