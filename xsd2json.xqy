@@ -911,7 +911,7 @@ declare function xsd2json:dataType($type as xs:string, $model as map(*)) as map(
  : @param   $type the name of the XML Schema data type
  :)
 declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
-    let $xsdType := xsd2json:prefix-from-qname($type)
+    let $xsdType := xsd2json:postfix-from-qname($type)
     return
     map:merge((
         map:entry('xsdType', $xsdType),
@@ -1151,7 +1151,7 @@ declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
  : @param   $type the name of the XML Schema data type
  :)
 declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*) {
-    let $xsdType := xsd2json:prefix-from-qname($type)
+    let $xsdType := xsd2json:postfix-from-qname($type)
     return
     map:merge((
         map:entry('xsdType', $xsdType),
