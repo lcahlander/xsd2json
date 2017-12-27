@@ -783,11 +783,13 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                         return
                             let $required := xsd2json:require-passthru($child, $model)
                             let $arrays := xsd2json:maxOccurs-passthru($child, $model)
+                            let $emodel := map:merge(($model, $arrays))
+                            let $enhance := map:put($emodel, 'noDoc', fn:false())
                             return 
                                 map:merge((
                                     map:entry(
                                         'properties', 
-                                        xsd2json:dispatch($child, map:merge(($model, $arrays)))
+                                        xsd2json:dispatch($child, $emodel)
                                     ),
                                     map:entry('additionalProperties', fn:false()),
                                     if (fn:count($required) gt 0) 
@@ -1213,6 +1215,7 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                         ))
             )
         else
+            let $enhance := map:put($model, 'noDoc', fn:false())
             let $content :=             
                 if ($node/@type)
                 then xsd2json:element-type($node, $model)

@@ -9,7 +9,18 @@ declare namespace xs="http://www.w3.org/2001/XMLSchema";
 declare option output:method "text";
 
 declare variable $keepNamespaces external := fn:false();
-declare variable $schemaId external := 'output.json#';
+declare variable $schemaId external := 'output.json';
+declare variable $restrictive external := fn:true();
 declare variable $option := map {'method': 'json', 'use-character-maps' : map { '/' : '/' }, 'indent': fn:true()};
 
-fn:serialize(xsd2json:run(./xs:schema, map { } ), $option)
+fn:serialize(
+    xsd2json:run(
+        ./xs:schema, 
+        map { 
+            'keepNamespaces': $keepNamespaces, 
+            'schemaId': $schemaId,
+            'restrivtive': $restrictive
+        } 
+    ), 
+    $option
+)
