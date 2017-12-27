@@ -1021,9 +1021,6 @@ declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
             case 'double' return map {
                 'type': 'number'
             }
-            case 'Boolean' return map {
-                'type': 'boolean'
-            }
             case 'duration' return map {
                 'type': 'string',
                 'pattern': '^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?=\d+[HMS])(\d+H)?(\d+M)?(\d+S)?)?$'
@@ -1234,9 +1231,6 @@ declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*)
             }
             case 'double' return map {
                 'type': 'number'
-            }
-            case 'Boolean' return map {
-                'type': 'boolean'
             }
             case 'duration' return map {
                 'type': 'string',

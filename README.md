@@ -87,23 +87,6 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-## xs:Boolean
-### Restrictive
-```
-{
-    'type': 'boolean',
-    'xsdType': 'Boolean'
-}
-```
-
-### Non-Restrictive
-```
-{
-    'type': 'boolean',
-    'xsdType': 'Boolean'
-}
-```
-
 ## xs:byte
 ### Restrictive
 ```
