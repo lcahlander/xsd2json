@@ -24,6 +24,10 @@ module namespace xsd2json="http://easymetahub.com/ns/xsd2json";
 declare namespace map = "http://www.w3.org/2005/xpath-functions/map";
 declare namespace xs="http://www.w3.org/2001/XMLSchema";
 
+declare variable $xsd2json:RESTRICTIVE := 'restrictive';
+declare variable $xsd2json:SCHEMAID := 'schemaId';
+declare variable $xsd2json:KEEP_NAMESPACES := 'keepNamespaces';
+
 
 
 (:~
@@ -45,7 +49,7 @@ let $m := map:merge((xsd2json:parse-level('target', $base, ()), $options))
 
 return 
     map:merge((
-    map:entry('id', if (map:contains($options, 'schemaId')) then map:get($options, 'schemaId') || '#' else 'output.json#'),
+    map:entry('id', if (map:contains($options, $xsd2json:SCHEMAID)) then map:get($options, $xsd2json:SCHEMAID) || '#' else 'output.json#'),
     map:entry('$schema', 'http://json-schema.org/draft-04/schema#'),
     map:entry('version', '0.0.1'),
     if ($base/xs:annotation/xs:documentation)
@@ -897,9 +901,12 @@ declare function xsd2json:documentation($node as node(), $model as map(*)) as ma
  : @param   $model - If the map contains the key-value pair 'restrictive' and false then get the non-restrictive type mapping 
  :)
 declare function xsd2json:dataType($type as xs:string, $model as map(*)) as map(*) {
-    if (fn:not(map:contains($model, 'restrictive')) or map:get($model, 'restrictive'))
-    then xsd2json:dataType-restrictive($type)
-    else xsd2json:dataType-non-restrictive($type)
+    if (map:contains($model, $xsd2json:RESTRICTIVE))
+    then 
+        if (map:get($model, $xsd2json:RESTRICTIVE))
+        then xsd2json:dataType-restrictive($type)
+        else xsd2json:dataType-non-restrictive($type)
+    else xsd2json:dataType-restrictive($type)
 };
 
 (:~
@@ -915,6 +922,7 @@ declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
     return
     map:merge((
         map:entry('xsdType', $xsdType),
+        map:entry('xsdMapping', 'restrictive'),
         switch($xsdType) 
             case 'string' return map {
                 'type': 'string'
@@ -1152,6 +1160,7 @@ declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*)
     return
     map:merge((
         map:entry('xsdType', $xsdType),
+        map:entry('xsdMapping', 'non-restrictive'),
         switch($xsdType) 
             case 'string' return map {
                 'type': 'string'
@@ -1454,7 +1463,7 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                                 case attribute(name) 
                                 return 
                                     attribute name { 
-                                        if (map:get($model, 'keepNamespaces')) 
+                                        if (map:get($model, $xsd2json:KEEP_NAMESPACES)) 
                                         then $node/@ref/string() 
                                         else $element/@name/string() 
                                     } 

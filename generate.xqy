@@ -17,9 +17,9 @@ fn:serialize(
     xsd2json:run(
         ./xs:schema, 
         map { 
-            'keepNamespaces': $keepNamespaces, 
-            'schemaId': $schemaId,
-            'restrivtive': $restrictive
+            $xsd2json:KEEP_NAMESPACES: $keepNamespaces, 
+            $xsd2json:SCHEMAID: $schemaId,
+            $xsd2json:RESTRICTIVE: $restrictive
         } 
     ), 
     $option
