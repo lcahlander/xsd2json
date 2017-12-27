@@ -8,8 +8,8 @@ The options that are supported are:
 * 'schemaId'       - the name of the schema - default is 'output.json'
 * 'restrictive'    - Maps the XSD data types to the more restrictive properties. - default is true
 
-#Running from Command Line
-##Requirements
+# Running from Command Line
+## Requirements
 
 * Saxon 9 EE (licensed copy is needed to use XQuery 3.1 features)
 
@@ -18,9 +18,9 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 ```
 
 
-#XSD Type to JSON Properties
-##xs:anySimpleType
-###Restrictive
+# XSD Type to JSON Properties
+## xs:anySimpleType
+### Restrictive
 ```
 {
     'xsdType': 'anySimpleType',
@@ -34,8 +34,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:anyURI
-###Restrictive
+## xs:anyURI
+### Restrictive
 ```
 {
     'type': 'string',
@@ -44,7 +44,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -52,8 +52,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:base64Binary
-###Restrictive
+## xs:base64Binary
+### Restrictive
 ```
 {
     'type': 'string',
@@ -62,7 +62,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -70,8 +70,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:boolean
-###Restrictive
+## xs:boolean
+### Restrictive
 ```
 {
     'type': 'boolean',
@@ -79,7 +79,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'boolean',
@@ -87,8 +87,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:Boolean
-###Restrictive
+## xs:Boolean
+### Restrictive
 ```
 {
     'type': 'boolean',
@@ -96,7 +96,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'boolean',
@@ -104,8 +104,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:byte
-###Restrictive
+## xs:byte
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -117,7 +117,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -125,8 +125,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:date
-###Restrictive
+## xs:date
+### Restrictive
 ```
 {
     'type': 'string',
@@ -135,7 +135,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -144,8 +144,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:dateTime
-###Restrictive
+## xs:dateTime
+### Restrictive
 ```
 {
     'type': 'string',
@@ -154,7 +154,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -163,8 +163,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:decimal
-###Restrictive
+## xs:decimal
+### Restrictive
 ```
 {
     'type': 'number',
@@ -172,7 +172,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'number',
@@ -180,8 +180,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:decimal
-###Restrictive
+## xs:decimal
+### Restrictive
 ```
 {
     'type': 'number',
@@ -189,7 +189,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'number',
@@ -197,8 +197,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:double
-###Restrictive
+## xs:double
+### Restrictive
 ```
 {
     'type': 'number',
@@ -206,7 +206,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'number',
@@ -214,8 +214,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:duration
-###Restrictive
+## xs:duration
+### Restrictive
 ```
 {
     'type': 'string',
@@ -224,7 +224,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -233,8 +233,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:ENTITIES
-###Restrictive
+## xs:ENTITIES
+### Restrictive
 ```
 {
     'type': 'array',
@@ -246,7 +246,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'array',
@@ -257,8 +257,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:ENTITY
-###Restrictive
+## xs:ENTITY
+### Restrictive
 ```
 {
     'type': 'string',
@@ -267,7 +267,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -275,8 +275,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:float
-###Restrictive
+## xs:float
+### Restrictive
 ```
 {
     'type': 'number',
@@ -284,7 +284,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'number',
@@ -292,8 +292,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:gDay
-###Restrictive
+## xs:gDay
+### Restrictive
 ```
 {
     'type': 'string',
@@ -302,7 +302,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -311,8 +311,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:gMonthDay
-###Restrictive
+## xs:gMonthDay
+### Restrictive
 ```
 {
     'type': 'string',
@@ -321,7 +321,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -330,8 +330,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:gMonth
-###Restrictive
+## xs:gMonth
+### Restrictive
 ```
 {
     'type': 'string',
@@ -340,7 +340,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -349,8 +349,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:gYearMonth
-###Restrictive
+## xs:gYearMonth
+### Restrictive
 ```
 {
     'type': 'string',
@@ -359,7 +359,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -368,8 +368,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:gYear
-###Restrictive
+## xs:gYear
+### Restrictive
 ```
 {
     'type': 'string',
@@ -378,7 +378,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -387,8 +387,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:hexBinary
-###Restrictive
+## xs:hexBinary
+### Restrictive
 ```
 {
     'type': 'string',
@@ -397,7 +397,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -405,8 +405,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:IDREF
-###Restrictive
+## xs:IDREF
+### Restrictive
 ```
 {
     'type': 'string',
@@ -415,7 +415,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -423,8 +423,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:IDREFS
-###Restrictive
+## xs:IDREFS
+### Restrictive
 ```
 {
     'type': 'string',
@@ -433,7 +433,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -441,8 +441,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:ID
-###Restrictive
+## xs:ID
+### Restrictive
 ```
 {
     'type': 'string',
@@ -451,7 +451,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -459,8 +459,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:integer
-###Restrictive
+## xs:integer
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -468,7 +468,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -476,8 +476,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:int
-###Restrictive
+## xs:int
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -489,7 +489,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -497,8 +497,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:language
-###Restrictive
+## xs:language
+### Restrictive
 ```
 {
     'type': 'string',
@@ -507,7 +507,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -515,8 +515,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:long
-###Restrictive
+## xs:long
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -528,7 +528,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -536,8 +536,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:Name
-###Restrictive
+## xs:Name
+### Restrictive
 ```
 {
     'type': 'string',
@@ -546,7 +546,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -554,8 +554,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:NCName
-###Restrictive
+## xs:NCName
+### Restrictive
 ```
 {
     'type': 'string',
@@ -564,7 +564,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -572,8 +572,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:negativeInteger
-###Restrictive
+## xs:negativeInteger
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -583,7 +583,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -593,8 +593,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:NMTOKEN
-###Restrictive
+## xs:NMTOKEN
+### Restrictive
 ```
 {
     'type': 'string',
@@ -603,7 +603,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -611,8 +611,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:NMTOKENS
-###Restrictive
+## xs:NMTOKENS
+### Restrictive
 ```
 {
     'type': 'array',
@@ -624,7 +624,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'array',
@@ -635,8 +635,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:nonNegativeInteger
-###Restrictive
+## xs:nonNegativeInteger
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -646,7 +646,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -656,8 +656,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:nonPositiveInteger
-###Restrictive
+## xs:nonPositiveInteger
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -667,7 +667,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -677,8 +677,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:normalizedString
-###Restrictive
+## xs:normalizedString
+### Restrictive
 ```
 {
     'type': 'string'
@@ -686,7 +686,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string'
@@ -694,8 +694,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:positiveInteger
-###Restrictive
+## xs:positiveInteger
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -705,7 +705,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -715,8 +715,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:QName
-###Restrictive
+## xs:QName
+### Restrictive
 ```
 {
     'type': 'string',
@@ -725,7 +725,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -733,8 +733,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:short
-###Restrictive
+## xs:short
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -746,7 +746,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -754,8 +754,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:string
-###Restrictive
+## xs:string
+### Restrictive
 ```
 {
     'type': 'string',
@@ -763,7 +763,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -771,8 +771,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:time
-###Restrictive
+## xs:time
+### Restrictive
 ```
 {
     'type': 'string',
@@ -781,7 +781,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -790,8 +790,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:token
-###Restrictive
+## xs:token
+### Restrictive
 ```
 {
     'type': 'string',
@@ -799,7 +799,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'string',
@@ -807,8 +807,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:unsignedByte
-###Restrictive
+## xs:unsignedByte
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -820,7 +820,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -830,8 +830,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:unsignedInt
-###Restrictive
+## xs:unsignedInt
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -843,7 +843,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -853,8 +853,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:unsignedLong
-###Restrictive
+## xs:unsignedLong
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -866,7 +866,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
@@ -876,8 +876,8 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-##xs:unsignedShort
-###Restrictive
+## xs:unsignedShort
+### Restrictive
 ```
 {
     'type': 'integer',
@@ -889,7 +889,7 @@ java -cp /usr/share/java/saxon.jar net.sf.saxon.Query -q:generate.xqy -s:schema.
 }
 ```
 
-###Non-Restrictive
+### Non-Restrictive
 ```
 {
     'type': 'integer',
