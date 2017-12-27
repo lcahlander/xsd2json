@@ -102,7 +102,24 @@ declare function xsd2json:is-xsd-datatype($name as xs:string) as xs:boolean {
         let $qname as xs:QName := xs:QName($name)
         return (fn:namespace-uri-from-QName($qname) eq "http://www.w3.org/2001/XMLSchema")
     } catch * {
-        fn:false()
+        let $prefix := fn:substring-before($name, ':')
+        return (('xs', 'xsd') = $prefix)
+    }
+};
+
+(:~
+ :
+ : Find prefix of the QName.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $qname the name of the item used to locate the schema
+ :)
+declare function xsd2json:prefix-from-qname($qname as xs:string) as xs:string? {
+    try {
+        fn:local-name-from-QName(xs:QName($qname))
+    } catch * {
+        fn:substring-before($qname, ':')
     }
 };
 
@@ -115,7 +132,11 @@ declare function xsd2json:is-xsd-datatype($name as xs:string) as xs:boolean {
  : @param   $qname the name of the item used to locate the schema
  :)
 declare function xsd2json:postfix-from-qname($qname as xs:string) as xs:string? {
-    fn:local-name-from-QName(xs:QName($qname))
+    try {
+        fn:local-name-from-QName(xs:QName($qname))
+    } catch * {
+        fn:substring-after($qname, ':')
+    }
 };
 
 (:~
@@ -212,25 +233,28 @@ declare function xsd2json:prefixes-from-namespace($uri as xs:string?, $model as 
 
 declare function xsd2json:parse-level($ns as xs:string, $base, $namespaces as xs:string*) as map(*) {
     let $baseuri := fn:base-uri($base)
+    let $included := 
+                        try {
+                            for $include in $base/xs:include
+                            let $loadPath := fn:concat(xsd2json:substring-before-last-match(xs:string($baseuri), '/'), '/', $include/@schemaLocation/string())
+                            return
+                                fn:doc($loadPath)/*
+                        } catch * {
+                            ()
+                        }
     return
         map:merge((
-        map:entry($ns, ($base,
-        if ($base instance of xs:string) then
-            ()
-        else
-            for $include in $base//xs:include
-            let $loadPath := fn:concat(xsd2json:substring-before-last-match(xs:string($baseuri), '/'), '/', $include/@schemaLocation/string())
-            return
-                fn:doc($loadPath)/*)),
-        if ($base instance of xs:string) then
-            ()
-        else
-            (
+        map:entry($ns, ($base, $included)),
+        try {
             for $prefix in fn:in-scope-prefixes($base)
-            return
+            let $trace := fn:trace($prefix, 'Prefix loaded: ')
+            return (
                 map:entry($prefix, fn:namespace-uri-for-prefix($prefix, $base))
-            ,
-            
+                )
+        } catch * {
+            ()
+        },
+        try {
             for $import in $base//xs:import
             let $loadPath := fn:concat(xsd2json:substring-before-last-match(xs:string($baseuri), '/'), '/', $import/@schemaLocation/string())
             return
@@ -240,7 +264,11 @@ declare function xsd2json:parse-level($ns as xs:string, $base, $namespaces as xs
                 xsd2json:parse-level(
                 $import/@namespace/string(),
                 xsd2json:loadSchema($loadPath), ($namespaces, $import/@namespace/string()))
-            )))
+        } catch * {
+            ()
+        }
+            
+        ))
 };
 
 (:~
@@ -323,8 +351,16 @@ declare function xsd2json:passthru($node as node()?, $model as map(*)) as map(*)
     map:merge(
         if ($node) 
         then 
-            for $cnode in $node/* 
-            return xsd2json:dispatch($cnode, $model) 
+            if ($node/xs:annotation/xs:documentation)
+            then
+                (
+                    xsd2json:documentation($node/xs:annotation/xs:documentation, $model),
+                    for $cnode in $node/* 
+                    return xsd2json:dispatch($cnode, map:merge(($model, map { 'noDoc': fn:true() }))) 
+                )
+            else
+                for $cnode in $node/* 
+                return xsd2json:dispatch($cnode, $model) 
         else () 
     )
 };
@@ -734,6 +770,7 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
+    let $enhance := map:put($model, 'noDoc', fn:false())
     let $oneof :=    
         map:entry(
             'oneOf', 
@@ -841,7 +878,11 @@ declare function xsd2json:documentation($node as node(), $model as map(*)) as ma
  : Child Elements:
 
  :)
-    map:entry('description', (xsd2json:trim(xs:string($node))))
+    if (map:get($model, 'noDoc'))
+    then 
+        map { }
+    else
+        map:entry('description', (xsd2json:trim(xs:string($node))))
 };
 
 (:~
@@ -853,7 +894,7 @@ declare function xsd2json:documentation($node as node(), $model as map(*)) as ma
  : @param   $type the name of the XML Schema data type
  :)
 declare function xsd2json:dataType($type as xs:string) as map(*) {
-    let $xsdType := fn:local-name-from-QName(xs:QName($type))
+    let $xsdType := xsd2json:prefix-from-qname($type)
     return
     map:merge((
         map:entry('xsdType', $xsdType),
@@ -1094,35 +1135,44 @@ declare function xsd2json:dataType($type as xs:string) as map(*) {
  : @param   $model a map(*) used for passing additional information between the levels
  :)
 declare function xsd2json:element-type($node as node(), $model as map(*)) as map(*) {
+    map:merge((
     if (xsd2json:is-xsd-datatype($node/@type))
-    then (:map:entry(
-                $node/@name/string(), 
-              :)  map:merge((
-                        xsd2json:dataType($node/@type), 
-                        xsd2json:passthru($node, $model)
-                        ))
-(:         )
-:)    else
+    then 
+        (
+            xsd2json:dataType($node/@type), 
+            xsd2json:passthru($node, $model)
+        )
+    else
         let $prefix := fn:substring-before($node/@type, ':')
         let $postfix := fn:substring-after($node/@type, ':')
         let $ns := (map:get($model, $prefix), 'target')[1]
         let $schema := map:get($model, $ns)
+        let $emodel := 
+            if ($node/xs:annotation/xs:documentation)
+            then map:merge(($model, map:entry('noDoc', fn:true())))
+            else $model
         return
-            if ($schema//xs:complexType[@name = $postfix])
-            then 
-                let $ct := $schema//xs:complexType[@name = $postfix]
-                return
-                    if ($ct)
-                    then (:map:entry($node/@name/string(),:) xsd2json:complexType($ct, $model)(:):)
-                    else fn:error(xs:QName('xsd2json:err057'), 'missing complexType', $postfix)
-            else if ($schema//xs:simpleType[@name = $postfix])
-            then 
-                let $ct := $schema//xs:simpleType[@name = $postfix]
-                return
-                    if ($ct)
-                    then (:map:entry($node/@name/string(),:) xsd2json:simpleType($ct, $model)(:):)
-                    else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
-            else map { }
+            (
+                if ($node/xs:annotation/xs:documentation)
+                then xsd2json:documentation($node/xs:annotation/xs:documentation, map { })
+                else (),
+                if ($schema//xs:complexType[@name = $postfix])
+                then 
+                    let $ct := $schema//xs:complexType[@name = $postfix]
+                    return
+                        if ($ct)
+                        then xsd2json:complexType($ct, $emodel)
+                        else fn:error(xs:QName('xsd2json:err057'), 'missing complexType', $postfix)
+                else if ($schema//xs:simpleType[@name = $postfix])
+                then 
+                    let $ct := $schema//xs:simpleType[@name = $postfix]
+                    return
+                        if ($ct)
+                        then xsd2json:simpleType($ct, $emodel)
+                        else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
+                else ()
+            )
+    ))
 };
 
 (:~
@@ -1163,10 +1213,10 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                         ))
             )
         else
-            let $content :=             if ($node/@type)
-            then xsd2json:element-type($node, $model)
-                        
-            else  map:merge(xsd2json:passthru($node, $model))
+            let $content :=             
+                if ($node/@type)
+                then xsd2json:element-type($node, $model)
+                else map:merge(xsd2json:passthru($node, $model))
             return
             map:entry($node/@name/string(),
                         switch ($maxOccurs)
@@ -1733,6 +1783,7 @@ declare function xsd2json:sequence($node as node(), $model as map(*)) as map(*) 
 
  :)
     let $err := trace(map:get($model, 'maxOccurs'), 'The value of $var1 is: ')
+    let $enhance := map:put($model, 'noDoc', fn:false())
     return
     if (map:get($model, 'maxOccurs') = 'unbounded')
     then
