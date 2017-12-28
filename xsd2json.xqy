@@ -783,17 +783,17 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                 return 
                     typeswitch($child)
                     case element(xs:annotation) return ()
-                    default
+                    case element(xs:element)
                         return
                             let $required := xsd2json:require-passthru($child, $model)
                             let $arrays := xsd2json:maxOccurs-passthru($child, $model)
                             let $emodel := map:merge(($model, $arrays))
-                            let $enhance := map:put($emodel, 'noDoc', fn:false())
+                            let $enhance := map:remove($emodel, 'noDoc')
                             return 
                                 map:merge((
                                     map:entry(
                                         'properties', 
-                                        xsd2json:dispatch($child, $emodel)
+                                        xsd2json:element($child, $emodel)
                                     ),
                                     map:entry('additionalProperties', fn:false()),
                                     if (fn:count($required) gt 0) 
@@ -802,6 +802,9 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                                     else 
                                         ()
                                 ))
+                    default
+                        return
+                            xsd2json:passthru($child, $model)
             }
         )
     return
@@ -875,20 +878,22 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
  :
  : @author  Loren Cahlander
  : @version 1.0
- : @param   $node the current node being processed
+ : @param   $nodes the current node being processed - possibly multiple
  : @param   $model a map(*) used for passing additional information between the levels
  :)
-declare function xsd2json:documentation($node as node(), $model as map(*)) as map(*) {
+declare function xsd2json:documentation($nodes as node()*, $model as map(*)) as map(*) {
     (: Attributes:
 :       source
  : Child Elements:
 
  :)
+    let $nl := "&#10;"
+    return
     if (map:get($model, 'noDoc'))
     then 
         map { }
     else
-        map:entry('description', (xsd2json:trim(xs:string($node))))
+        map:entry('description', fn:string-join(for $node in $nodes return xsd2json:trim(xs:string($node)), $nl))
 };
 
 (:~
@@ -1435,17 +1440,37 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                         ))
             )
         else
-            let $enhance := map:put($model, 'noDoc', fn:false())
-            let $content :=             
+            let $enhance := map:put($model, 'noDoc', fn:true())
+            let $content := map:merge((   
+                if ($node/xs:annotation/xs:documentation)
+                then
+                    xsd2json:documentation($node/xs:annotation/xs:documentation, map { })
+                else 
+                    (),
                 if ($node/@type)
                 then xsd2json:element-type($node, $model)
-                else map:merge(xsd2json:passthru($node, $model))
+                else (),
+                xsd2json:passthru($node, $model)))
             return
-            map:entry($node/@name/string(),
-                        switch ($maxOccurs)
-                        case '1' return $content
-                        case 'unbounded' return map:merge((map:entry('type', 'array'), map:entry('minItems', xs:integer(($node/@minOccurs/string(), '1')[1])), map:entry('items', map:merge((map:entry('type', 'object'), $content)))))
-                        default return map:merge((map:entry('type', 'array'), map:entry('minItems', xs:integer(($node/@minOccurs/string(), '1')[1])), map:entry('maxItems', xs:integer($maxOccurs)), map:entry('items', map:merge((map:entry('type', 'object'), $content)))))
+                map:entry(
+                    $node/@name/string(),
+                    switch ($maxOccurs)
+                    case '1' return $content
+                    case 'unbounded' 
+                        return 
+                            map:merge((
+                                map:entry('type', 'array'), 
+                                map:entry('minItems', xs:integer(($node/@minOccurs/string(), '1')[1])), 
+                                map:entry('items', map:merge((map:entry('type', 'object'), $content)))
+                            ))
+                    default 
+                        return 
+                            map:merge((
+                                map:entry('type', 'array'), 
+                                map:entry('minItems', xs:integer(($node/@minOccurs/string(), '1')[1])), 
+                                map:entry('maxItems', xs:integer($maxOccurs)), 
+                                map:entry('items', map:merge((map:entry('type', 'object'), $content)))
+                            ))
             )
     else 
         let $postfix := xsd2json:postfix-from-ref($node)
@@ -2006,7 +2031,7 @@ declare function xsd2json:sequence($node as node(), $model as map(*)) as map(*) 
 
  :)
     let $err := trace(map:get($model, 'maxOccurs'), 'The value of $var1 is: ')
-    let $enhance := map:put($model, 'noDoc', fn:false())
+    let $enhance := map:remove($model, 'noDoc')
     return
     if (map:get($model, 'maxOccurs') = 'unbounded')
     then
