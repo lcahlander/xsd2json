@@ -1,10 +1,18 @@
 {
-  "type": "object",
-  "properties": {
-    "description": {
-      "type": "string",
-      "description": "Some Text."
-    }
-  },
-  "required": [ "description" ]
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"animals": {
+        "properties": {"description": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string",
+            "description": "Some Text."
+        }},
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["description"]
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "output.json#"
 }

@@ -1,4 +1,14 @@
 {
-  "type": "string",
-  "description": "Text 1.\nText 2."
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"dog": {
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "type": "string",
+        "description": "Text 2."
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "output.json#",
+    "description": "\n      Text 1.\n    "
 }

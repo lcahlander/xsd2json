@@ -52,23 +52,33 @@ return
     map:entry('id', if (map:contains($options, $xsd2json:SCHEMAID)) then map:get($options, $xsd2json:SCHEMAID) || '#' else 'output.json#'),
     map:entry('$schema', 'http://json-schema.org/draft-04/schema#'),
     map:entry('version', '0.0.1'),
+        map:entry('type', 'object'),
     if ($base/xs:annotation/xs:documentation)
     then
         map:entry('description', $base/xs:annotation/xs:documentation/string())
     else
         (),
+    if ($base/xs:complexType[@name])
+    then
+        map:entry(
+            'definitions', 
+            map:merge((
+                for $element in $base/xs:complexType[@name]
+                return xsd2json:complexType($element, map:merge((map:entry('definitions', fn:true()), $m)))
+            ))
+        )
+    else 
+        (),
     if (fn:count($base/xs:element) eq 1)
     then
     (
-        map:entry('type', 'object'),
         map:entry(
             'properties', 
             xsd2json:element($base/xs:element, $m)
         )
     )
-    else
-    (
-        map:entry('type', 'object'),
+    else if (fn:count($base/xs:element) gt 1)
+    then (
         map:entry(
             'properties', 
             map:merge((
@@ -76,7 +86,9 @@ return
                 return xsd2json:element($element, $m)
             ))
         )
-    ),
+    )
+    else 
+        (),
     map:entry('additionalProperties', fn:false())
 ))};
 
@@ -554,7 +566,7 @@ declare function xsd2json:extension($node as node(), $model as map(*)) as map(*)
             else
                 let $prefix := fn:substring-before($node/@base, ':')
                 let $postfix := fn:substring-after($node/@base, ':')
-                let $ns := map:get($model, $prefix)
+                let $ns := if ($prefix) then map:get($model, $prefix) else map:get($model, 'target')
                 let $schema := map:get($model, $ns)
                 return
                     if ($schema//xs:complexType[@name = $postfix])
@@ -858,7 +870,7 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
  : Child Elements:
 
  :)
-    map:merge((
+    let $content := map:merge((
         if ($node/xs:annotation) then xsd2json:annotation($node/xs:annotation, $model) else (),
         if ($node/xs:complexContent)
         then xsd2json:complexContent($node/xs:complexContent, $model)
@@ -872,6 +884,10 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
         then for $attr in $node/xs:sequence return xsd2json:attribute($attr, $model)
         else ()
     ))
+    return 
+        if ($node/@name and map:contains($model, 'definitions'))
+        then map:entry($node/@name/string(), $content)
+        else $content
 };
 
 (:~

@@ -12,6 +12,7 @@ declare option output:indent "yes";
 
 element { 'xsd' } { 
     for $child in file:list(fn:concat(file:base-dir(), 'xsd')) 
+    order by $child
     return 
         if (fn:ends-with($child, '.xsd'))
         then
