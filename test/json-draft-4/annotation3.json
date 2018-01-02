@@ -1,4 +1,10 @@
 {
-  "type": "string",
-  "description": "atomic"
+    "xsdType": "string",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "annotation3.json#",
+    "description": "atomic"
 }

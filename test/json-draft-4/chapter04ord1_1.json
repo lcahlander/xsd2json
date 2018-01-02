@@ -1,27 +1,38 @@
 {
-  "definitions": {
-    "OrderType": {
-      "type": "object",
-      "properties": {
-        "customer": {
-          "type": "string"
+    "definitions": {"OrderType": {
+        "properties": {
+            "items": {
+                "xsdType": "nonNegativeInteger",
+                "xsdMapping": "restrictive",
+                "minimum": 0,
+                "exclusiveMinimum": false,
+                "type": "integer"
+            },
+            "number": {
+                "xsdType": "positiveInteger",
+                "xsdMapping": "restrictive",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "type": "integer"
+            },
+            "customer": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            }
         },
-        "number": {
-          "type": "integer",
-          "minimum": 0,
-          "exclusiveMinimum": true
-        },
-        "items": {
-          "type": "integer",
-          "minimum": 0,
-          "exclusiveMinimum": false
-        }
-      },
-      "required": [
-        "number",
-        "customer",
-        "items"
-      ]
-    }
-  }
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+            "number",
+            "customer",
+            "items"
+        ]
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "chapter04ord1_1.json#"
 }

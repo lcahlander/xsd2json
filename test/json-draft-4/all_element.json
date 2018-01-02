@@ -1,17 +1,13 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {"pets": {
-        "type": "object",
-        "properties": {"dog": {
-            "xsdType": "string",
-            "xsdMapping": "restrictive",
-            "type": "string"
-        }},
-        "additionalProperties": false,
-        "required": ["dog"]
+    "properties": {"dog": {
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "type": "string"
     }},
     "version": "0.0.1",
     "additionalProperties": false,
     "type": "object",
-    "id": "output.json#"
+    "id": "all_element.json#",
+    "required": ["dog"]
 }

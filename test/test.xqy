@@ -16,12 +16,19 @@ element { 'xsd' } {
     return 
         if (fn:ends-with($child, '.xsd'))
         then
-            let $generated := xsd2json:run(fn:doc(fn:concat('xsd/', $child))//xs:schema, map { })
-            let $toTest := fn:json-doc(fn:concat('json-draft-4/', fn:substring-before($child, '.xsd'), '.json'))
+            let $name := fn:substring-before($child, '.xsd')
+            let $outfile := fn:concat($name, '.json')
+            let $generated := xsd2json:run(fn:doc(fn:concat('xsd/', $child))//xs:schema, map { 
+            $xsd2json:KEEP_NAMESPACES: fn:true(), 
+            $xsd2json:SCHEMAID: $outfile,
+            $xsd2json:RESTRICTIVE: fn:true()
+        })
+            let $toTest := fn:json-doc(fn:concat('json-draft-4/', $name, '.json'))
             let $option := map {'method': 'json', 'use-character-maps' : map { '/' : '/' }, 'indent': fn:true()}
             return
             element { 'child' } { 
-                element { 'name' } { $child },
+                element { 'name' } { $name },
+                element { 'outfile' } { $outfile },
                 element { 'compared' } {  fn:deep-equal($generated, $toTest) },
                 element { 'generated' } { fn:serialize($generated, $option) },
                 element { 'test' } { fn:serialize($toTest, $option) }

@@ -1,3 +1,13 @@
 {
-  "type": "integer"
+    "maximum": 9223372036854775807,
+    "exclusiveMaximum": false,
+    "xsdType": "long",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "minimum": -9223372036854775808,
+    "exclusiveMinimum": false,
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "integer",
+    "id": "element_long.json#"
 }

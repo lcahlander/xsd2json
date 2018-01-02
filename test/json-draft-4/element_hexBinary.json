@@ -1,4 +1,10 @@
 {
-  "type": "string",
-  "pattern": "^[0-9a-fA-F]*$"
+    "xsdType": "hexBinary",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "pattern": "^([0-9a-fA-F]{2})*$",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "element_hexBinary.json#"
 }
