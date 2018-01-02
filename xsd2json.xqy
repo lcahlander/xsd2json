@@ -866,6 +866,8 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
         then xsd2json:simpleContent($node/xs:simpleContent, $model)
         else if ($node/xs:sequence)
         then xsd2json:sequence($node/xs:sequence, $model)
+        else if ($node/xs:all)
+        then xsd2json:all($node/xs:all, $model)
         else if ($node/xs:attribute)
         then for $attr in $node/xs:sequence return xsd2json:attribute($attr, $model)
         else ()
