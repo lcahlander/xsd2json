@@ -1,28 +1,50 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "string"
+    "definitions": {
+        "shapes": {
+            "properties": {
+                "circle": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                },
+                "square": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "circle",
+                "square"
+            ]
         },
-        "cat": {
-          "type": "string"
+        "pets": {
+            "properties": {
+                "cat": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                },
+                "dog": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "dog",
+                "cat"
+            ]
         }
-      },
-      "required": ["dog", "cat"]
     },
-    "shapes": {
-      "type": "object",
-      "properties": {
-        "circle": {
-          "type": "string"
-        },
-        "square": {
-          "type": "string"
-        }
-      },
-      "required": ["circle", "square"]
-    }
-  }
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "complexType_name3.json#"
 }

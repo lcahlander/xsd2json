@@ -1,5 +1,13 @@
 {
-  "type": "integer",
-  "minimum": 0,
-  "exclusiveMinimum": false
+    "maximum": 4294967295,
+    "exclusiveMaximum": false,
+    "xsdType": "unsignedInt",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "minimum": 0,
+    "exclusiveMinimum": false,
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "integer",
+    "id": "element_unsignedInt.json#"
 }

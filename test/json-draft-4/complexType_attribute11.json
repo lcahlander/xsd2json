@@ -1,23 +1,30 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "$ref": "#/definitions/@amount"
+    "definitions": {
+        "houses": {
+            "properties": {"@amount": {
+                "xsdType": "integer",
+                "xsdMapping": "restrictive",
+                "isAttribute": true,
+                "type": "integer"
+            }},
+            "additionalProperties": false,
+            "type": "object"
+        },
+        "pets": {
+            "properties": {"@amount": {
+                "xsdType": "integer",
+                "xsdMapping": "restrictive",
+                "isAttribute": true,
+                "type": "integer"
+            }},
+            "additionalProperties": false,
+            "type": "object"
         }
-      }
     },
-    "houses": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "$ref": "#/definitions/@amount"
-        }
-      }
-    },
-    "@amount": {
-      "type": "integer"
-    }
-  }
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "complexType_attribute11.json#"
 }

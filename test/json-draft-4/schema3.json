@@ -1,4 +1,23 @@
 {
-  "type": "string",
-  "enum": [ "dog", "cat" ]
+    "enum": [
+        "dog",
+        "cat"
+    ],
+    "xsdType": "string",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "xsdEnum": [
+        {
+            "value": "dog",
+            "description": ""
+        },
+        {
+            "value": "cat",
+            "description": ""
+        }
+    ],
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "schema3.json#"
 }

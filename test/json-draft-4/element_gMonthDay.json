@@ -1,4 +1,10 @@
 {
-  "type": "string",
-  "pattern": "^--(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    "xsdType": "gMonthDay",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "pattern": "^(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "element_gMonthDay.json#"
 }

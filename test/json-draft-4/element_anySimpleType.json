@@ -1,9 +1,15 @@
 {
-  "oneOf": [
-    { "type": "integer" },
-    { "type": "string" },
-    { "type": "number" },
-    { "type": "boolean" },
-    { "type": "null" }
-  ]
+    "xsdType": "anySimpleType",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "id": "element_anySimpleType.json#",
+    "oneOf": [
+        {"type": "integer"},
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "boolean"},
+        {"type": "null"}
+    ]
 }

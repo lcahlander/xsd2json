@@ -1,17 +1,22 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "minItems": 1
-        }
-      },
-      "required": ["dog"]
-    }
-  }
+    "definitions": {"pets": {
+        "properties": {"dog": {
+            "items": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+        }},
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["dog"]
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "sequence_element4.json#"
 }

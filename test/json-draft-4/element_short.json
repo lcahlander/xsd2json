@@ -1,15 +1,13 @@
 {
+    "maximum": 32767,
+    "exclusiveMaximum": false,
+    "xsdType": "short",
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {"dog": {
-        "type": "integer",
-        "xsdType": "xs:short",
-        "minimum": -32768,
-        "maximum": 32767,
-        "exclusiveMinimum": false,
-        "exclusiveMaximum": false
-    }},
+    "xsdMapping": "restrictive",
+    "minimum": -32768,
+    "exclusiveMinimum": false,
     "version": "0.0.1",
     "additionalProperties": false,
-    "type": "object",
-    "id": "output.json#"
+    "type": "integer",
+    "id": "element_short.json#"
 }

@@ -1,16 +1,26 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "string"
+    "definitions": {"pets": {
+        "properties": {
+            "amount": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            },
+            "@amount": {
+                "xsdType": "integer",
+                "xsdMapping": "restrictive",
+                "isAttribute": true,
+                "type": "integer"
+            }
         },
-        "@amount": {
-          "type": "integer"
-        }
-      },
-      "required": [ "amount" ]
-    }
-  }
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["amount"]
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "complexType_attribute12.json#"
 }

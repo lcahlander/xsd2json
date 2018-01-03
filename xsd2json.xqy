@@ -418,7 +418,9 @@ declare function xsd2json:require-dispatch($node as node()?, $model as map(*)) a
     if ($node) then 
     typeswitch($node) 
         case element(xs:attribute) return xsd2json:require-attribute($node, $model)
+        case element(xs:attributeGroup) return xsd2json:require-attributeGroup($node, $model)
         case element(xs:element) return xsd2json:require-element($node, $model)
+        case element(xs:complexType) return xsd2json:require-complexType($node, $model)
         default return xsd2json:require-passthru($node, $model) 
     else ()
 };
@@ -453,10 +455,60 @@ declare function xsd2json:require-attribute($node as node(), $model as map(*)) a
  :)
     if ($node/@name)
     then 
-        if ($node/@minOccurs/fn:number(.) = 1)
+        if (($node/@minOccurs/fn:number(.) = 1) or ($node[@use = 'required']))
         then '@' || $node/@name/string(.)
         else ()
     else ()
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:require-attributeGroup($node as node(), $model as map(*)) as xs:string* {
+    (: Attributes:
+
+ : Child Elements:
+
+ :)
+    if ($node/@name)
+    then 
+        xsd2json:require-passthru($node, $model)
+    else 
+        let $postfix := xsd2json:postfix-from-ref($node)
+        let $schema := xsd2json:schema-from-ref($node, $model)
+        return
+            if ($schema//xs:attributeGroup[@name = $postfix])
+            then 
+                let $attribute := $schema//xs:attributeGroup[@name = $postfix]
+                return
+                    if ($attribute)
+                    then xsd2json:require-attributeGroup($attribute, $model)
+                    else fn:error(xs:QName('xsd2json:err057'), 'missing attributeGroup', $postfix)
+            else ()
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:require-complexType($node as node(), $model as map(*)) as xs:string? {
+    (: Attributes:
+
+ : Child Elements:
+
+ :)
+    ()
 };
 
 (:~
@@ -716,45 +768,82 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
  : Child Elements:
 
  :)
-    if ($node/@name)
-    then 
-        if ($node/@type)
+        if ($node/@name)
         then 
-            if (xsd2json:is-xsd-datatype($node/@type))
-            then map:entry(
-                        '@' || $node/@name/string(), 
-                        map:merge((
-                                map:entry('isAttribute', fn:true()),
-                                xsd2json:dataType($node/@type, $model), 
-                                xsd2json:passthru($node, $model)
-                                ))
-                 )
-            else
-                let $postfix := xsd2json:postfix-from-qname($node/@type)
-                let $schema := xsd2json:schema-from-qname($node, $node/@type, $model)
-                return
-                    if ($schema//xs:simpleType[@name = $postfix])
-                    then 
-                        let $ct := $schema//xs:simpleType[@name = $postfix]
-                        return
-                            if ($ct)
-                            then map:entry('@' || $node/@name/string(), map:merge((map:entry('isAttribute', fn:true()), xsd2json:simpleType($ct, $model))))
-                            else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
-                    else map:merge(())
-                    
-        else map:entry('@' || $node/@name/string(), map:merge(xsd2json:passthru($node, $model)))
-    else 
-        let $postfix := xsd2json:postfix-from-ref($node)
-        let $schema := xsd2json:schema-from-ref($node, $model)
-        return
-            if ($schema//xs:attribute[@name = $postfix])
+            if ($node/@type)
             then 
-                let $attribute := $schema//xs:attribute[@name = $postfix]
-                return
-                    if ($attribute)
-                    then xsd2json:attribute($attribute, $model)
-                    else fn:error(xs:QName('xsd2json:err057'), 'missing element', $postfix)
-            else map:entry('@' || $node/@ref/string(), map:merge(()))
+                if (xsd2json:is-xsd-datatype($node/@type))
+                then map:entry(
+                            '@' || $node/@name/string(), 
+                            map:merge((
+                                    if ($node/@fixed)
+                                    then 
+                                        (
+                                            map:entry(
+                                                'enum', 
+                                                array { 
+                                                    switch (xsd2json:dataType-basic($node/@type))
+                                                    case 'integer' return xs:integer($node/@fixed) 
+                                                    case 'number' return xs:decimal($node/@fixed) 
+                                                    case 'boolean' return xs:boolean($node/@fixed) 
+                                                    default return xs:string($node/@fixed) 
+                                                }
+                                            )
+                                        )
+                                    else (),
+                                    map:entry('isAttribute', fn:true()),
+                                    xsd2json:dataType($node/@type, $model), 
+                                    xsd2json:passthru($node, $model)
+                                    ))
+                     )
+                else
+                    let $postfix := xsd2json:postfix-from-qname($node/@type)
+                    let $schema := xsd2json:schema-from-qname($node, $node/@type, $model)
+                    return
+                        if ($schema//xs:simpleType[@name = $postfix])
+                        then 
+                            let $ct := $schema//xs:simpleType[@name = $postfix]
+                            return
+                                if ($ct)
+                                then 
+                                    map:entry(
+                                        '@' || $node/@name/string(), 
+                                        map:merge((
+                                            if ($node/@fixed)
+                                            then 
+                                                (
+                                                    map:entry(
+                                                        'enum', 
+                                                        array { 
+                                                            switch (xsd2json:simpleType-base($node, $model))
+                                                            case 'integer' return xs:integer($node/@fixed) 
+                                                            case 'number' return xs:decimal($node/@fixed) 
+                                                            case 'boolean' return xs:boolean($node/@fixed) 
+                                                            default return xs:string($node/@fixed) 
+                                                        }
+                                                    )
+                                                )
+                                            else (),
+                                            map:entry('isAttribute', fn:true()), 
+                                            xsd2json:simpleType($ct, $model)
+                                        ))
+                                    )
+                                else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
+                        else map:merge(())
+                        
+            else map:entry('@' || $node/@name/string(), map:merge(xsd2json:passthru($node, $model)))
+        else 
+            let $postfix := xsd2json:postfix-from-ref($node)
+            let $schema := xsd2json:schema-from-ref($node, $model)
+            return
+                if ($schema//xs:attribute[@name = $postfix])
+                then 
+                    let $attribute := $schema//xs:attribute[@name = $postfix]
+                    return
+                        if ($attribute)
+                        then xsd2json:attribute($attribute, $model)
+                        else fn:error(xs:QName('xsd2json:err057'), 'missing element', $postfix)
+                else map:entry('@' || $node/@ref/string(), map:merge(()))
 };
 
 (:~
@@ -891,15 +980,34 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
     let $content := map:merge((
         if ($node/xs:annotation) then xsd2json:annotation($node/xs:annotation, $model) else (),
         if ($node/xs:complexContent)
-        then xsd2json:complexContent($node/xs:complexContent, $model)
+        then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:complexContent($node/xs:complexContent, $model))
         else if ($node/xs:simpleContent)
-        then xsd2json:simpleContent($node/xs:simpleContent, $model)
+        then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:simpleContent($node/xs:simpleContent, $model))
         else if ($node/xs:sequence)
-        then xsd2json:sequence($node/xs:sequence, $model)
+        then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:sequence($node/xs:sequence, $model))
         else if ($node/xs:all)
-        then xsd2json:all($node/xs:all, $model)
+        then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:all($node/xs:all, $model))
         else if ($node/xs:attribute)
-        then map:entry('properties', map:merge((for $attr in $node/xs:attribute return xsd2json:attribute($attr, $model))))
+        then 
+            (
+                map:entry('type', 'object'), 
+                map:entry('additionalProperties', fn:false()), 
+                if (xsd2json:require-dispatch($node, $model))
+                then
+                    map:entry(
+                        'required',
+                        array { xsd2json:require-dispatch($node, $model) }
+                    )
+                else
+                    (),
+                map:entry(
+                    'properties', 
+                    map:merge((
+                        for $attr in $node/xs:attribute 
+                        return xsd2json:attribute($attr, $model)
+                    ))
+                )
+            )
         else ()
     ))
     return 
@@ -1404,6 +1512,39 @@ declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*)
             }
     ))
     
+};
+
+(:~
+ :
+ : Return the non-restrictive JSON Schema equivalent for the requested XML Schema data type
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $type the name of the XML Schema data type
+ :)
+declare function xsd2json:dataType-basic($type as xs:string) as xs:string {
+    let $xsdType := xsd2json:postfix-from-qname($type)
+    return
+        switch($xsdType) 
+            case 'integer' return 'integer'
+            case 'positiveInteger' return 'integer'
+            case 'negativeInteger' return 'integer'
+            case 'nonNegativeInteger' return 'integer'
+            case 'nonPositiveInteger' return 'integer'
+            case 'long' return 'integer'
+            case 'unsignedLong' return 'integer'
+            case 'int' return 'integer'
+            case 'unsignedInt' return 'integer'
+            case 'short' return 'integer'
+            case 'unsignedShort' return 'integer'
+            case 'byte' return 'integer'
+            case 'unsignedByte' return 'integer'
+            case 'decimal' return 'number'
+            case 'float' return 'number'
+            case 'double' return 'number'
+            case 'decimal' return 'number' 
+            case 'boolean' return 'boolean' 
+            default return 'string'
 };
 
 (:~
@@ -2160,6 +2301,24 @@ declare function xsd2json:simpleType($node as node(), $model as map(*)) as map(*
 
  :)
     xsd2json:passthru($node, $model)
+};
+
+(:~
+ : 
+ : TODO: Document this function.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:simpleType-base($node as node(), $model as map(*)) as xs:string {
+    (: Attributes:
+
+ : Child Elements:
+
+ :)
+    (map:get(xsd2json:passthru($node, $model), 'type'), 'string')[1]
 };
 
 (:~

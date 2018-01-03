@@ -1,23 +1,35 @@
 {
-  "required": [
-    "name",
-    "address",
-    "city",
-    "country"
-  ],
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+        "city": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        },
+        "name": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        },
+        "address": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        },
+        "country": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        }
     },
-    "address": {
-      "type": "string"
-    },
-    "city": {
-      "type": "string"
-    },
-    "country": {
-      "type": "string"
-    }
-  }
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "shiporder1-2.json#",
+    "required": [
+        "name",
+        "address",
+        "city",
+        "country"
+    ]
 }

@@ -1,5 +1,11 @@
 {
-  "type": "integer",
-  "maximum": 0,
-  "exclusiveMaximum": false
+    "maximum": 0,
+    "exclusiveMaximum": false,
+    "xsdType": "nonPositiveInteger",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "integer",
+    "id": "element_nonPositiveInteger.json#"
 }

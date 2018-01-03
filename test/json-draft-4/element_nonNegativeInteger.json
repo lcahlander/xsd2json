@@ -1,5 +1,11 @@
 {
-  "type": "integer",
-  "minimum": 0,
-  "exclusiveMinimum": false
+    "xsdType": "nonNegativeInteger",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "minimum": 0,
+    "exclusiveMinimum": false,
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "integer",
+    "id": "element_nonNegativeInteger.json#"
 }

@@ -1,8 +1,12 @@
 {
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string"
-    }
-  }
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"name": {
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "type": "string"
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "schema4.json#"
 }

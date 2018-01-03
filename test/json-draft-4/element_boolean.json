@@ -1,3 +1,9 @@
 {
-  "type": "boolean"
+    "xsdType": "boolean",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "boolean",
+    "id": "element_boolean.json#"
 }

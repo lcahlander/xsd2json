@@ -1,13 +1,18 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "string"
-        }
-      },
-      "required": ["dog"]
-    }
-  }
+    "definitions": {"pets": {
+        "properties": {"dog": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        }},
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["dog"]
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "sequence_element2.json#"
 }

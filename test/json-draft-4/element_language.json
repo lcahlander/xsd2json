@@ -1,3 +1,10 @@
 {
-  "type": "string"
+    "xsdType": "language",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "pattern": "^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "element_language.json#"
 }

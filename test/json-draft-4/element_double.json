@@ -1,3 +1,9 @@
 {
-  "type": "number"
+    "xsdType": "double",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "number",
+    "id": "element_double.json#"
 }

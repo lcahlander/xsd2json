@@ -1,4 +1,10 @@
 {
-  "type": "string",
-  "format": "uri"
+    "xsdType": "anyURI",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "pattern": "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "element_anyURI.json#"
 }

@@ -1,7 +1,13 @@
 {
-  "type": "integer",
-  "minimum": 0,
-  "exclusiveMinimum": false,
-  "maximum": 255,
-  "exclusiveMaximum": false
+    "maximum": 255,
+    "exclusiveMaximum": false,
+    "xsdType": "unsignedByte",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "minimum": 0,
+    "exclusiveMinimum": false,
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "integer",
+    "id": "element_unsignedByte.json#"
 }

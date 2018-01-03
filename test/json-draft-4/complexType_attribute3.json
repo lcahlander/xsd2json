@@ -1,26 +1,33 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "minItems": 3,
-          "maxItems": 8
+    "definitions": {"pets": {
+        "properties": {
+            "@amount": {
+                "maximum": 8,
+                "exclusiveMaximum": false,
+                "xsdType": "integer",
+                "xsdMapping": "restrictive",
+                "isAttribute": true,
+                "type": "integer"
+            },
+            "dog": {
+                "items": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "object"
+                },
+                "minItems": 3,
+                "type": "array",
+                "maxItems": 8
+            }
         },
-        "amount": {
-          "$ref": "#/definitions/myInteger"
-        }
-      },
-      "required": ["dog"]
-    },
-    "myInteger": {
-      "type": "integer",
-      "maximum": 8,
-      "exclusiveMaximum": false
-    }
-  }
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["dog"]
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "complexType_attribute3.json#"
 }
