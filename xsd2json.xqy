@@ -81,13 +81,15 @@ return
                 'definitions', 
                 map:merge((
                     for $element in $base/xs:complexType[@name]
-                    return xsd2json:complexType($element, map:merge((map:entry('definitions', fn:true()), $m)))
+                    return xsd2json:complexType($element, map:merge((map:entry('definitions', fn:true()), $m))),
+                    for $element in $base/xs:simpleType[@name]
+                    return xsd2json:simpleType($element, map:merge((map:entry('definitions', fn:true()), $m)))
                 ))
             )
         )
     else 
         (),
-    if ((fn:count($base/xs:element) eq 1) and fn:not($base/xs:complexType[@name]))
+    if ((fn:count($base/xs:element) eq 1) and fn:not(($base/xs:complexType[@name], $base/xs:simpleType[@name])))
     then
         let $element := $base/xs:element
         let $documentation := ($base/xs:annotation/xs:documentation, $element/xs:annotation/xs:documentation)
@@ -1213,24 +1215,33 @@ declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
                 'pattern': '^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d)(.(\d{3}))?)?$'
             }
             case 'gYear' return map {
-                'type': 'string',
-                'pattern': '^(19|20)\d\d$'
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 9999,
+                'exclusiveMinimum': fn:false(),
+                'exclusiveMaximum': fn:false()
             }
             case 'gYearMonth' return map {
                 'type': 'string',
                 'pattern': '^(19|20)\d\d-(0[1-9]|1[012])$'
             }
             case 'gMonth' return map {
-                'type': 'string',
-                'pattern': '^(0[1-9]|1[012])$'
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 12,
+                'exclusiveMinimum': fn:false(),
+                'exclusiveMaximum': fn:false()
             }
             case 'gMonthDay' return map {
                 'type': 'string',
                 'pattern': '^(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$'
             }
             case 'gDay' return map {
-                'type': 'string',
-                'pattern': '^(0[1-9]|[12][0-9]|3[01])$'
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 31,
+                'exclusiveMinimum': fn:false(),
+                'exclusiveMaximum': fn:false()
             }
             case 'Name' return map {
                 'type': 'string',
@@ -1425,24 +1436,21 @@ declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*)
                 'pattern': '^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d)(.(\d{3}))?)?$'
             }
             case 'gYear' return map {
-                'type': 'string',
-                'pattern': '^(19|20)\d\d$'
+                'type': 'integer'
             }
             case 'gYearMonth' return map {
                 'type': 'string',
                 'pattern': '^(19|20)\d\d-(0[1-9]|1[012])$'
             }
             case 'gMonth' return map {
-                'type': 'string',
-                'pattern': '^(0[1-9]|1[012])$'
+                'type': 'integer'
             }
             case 'gMonthDay' return map {
                 'type': 'string',
                 'pattern': '^(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$'
             }
             case 'gDay' return map {
-                'type': 'string',
-                'pattern': '^(0[1-9]|[12][0-9]|3[01])$'
+                'type': 'integer'
             }
             case 'Name' return map {
                 'type': 'string'
@@ -1527,6 +1535,9 @@ declare function xsd2json:dataType-basic($type as xs:string) as xs:string {
     return
         switch($xsdType) 
             case 'integer' return 'integer'
+            case 'gYear' return 'integer'
+            case 'gMonth' return 'integer'
+            case 'gDay' return 'integer'
             case 'positiveInteger' return 'integer'
             case 'negativeInteger' return 'integer'
             case 'nonNegativeInteger' return 'integer'
