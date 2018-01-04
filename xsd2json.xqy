@@ -2074,7 +2074,13 @@ declare function xsd2json:pattern($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 :       xs:annotation
  :)
-    map:entry('pattern', fn:concat('^', $node/@value/string(), '$'))
+    if ($node/preceding-sibling::xs:pattern)
+    then map { }
+    else if ($node/following-sibling::xs:pattern)
+    then
+        map:entry('pattern', fn:concat('^(', fn:string-join(($node/@value/string(), $node/following-sibling::xs:pattern/@value/string()), '|'), ')$'))
+    else
+        map:entry('pattern', fn:concat('^', $node/@value/string(), '$'))
 };
 
 (:~
