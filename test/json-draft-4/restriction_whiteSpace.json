@@ -1,7 +1,13 @@
 {
-  "definitions": {
-    "dog": {
-      "type": "string"
-    }
-  }
+    "definitions": {"dog": {
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "type": "string"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction_whiteSpace.json#"
 }

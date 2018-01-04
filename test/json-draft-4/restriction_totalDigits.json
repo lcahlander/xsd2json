@@ -1,7 +1,13 @@
 {
-  "definitions": {
-    "dog": {
-      "type": "number"
-    }
-  }
+    "definitions": {"dog": {
+        "xsdType": "decimal",
+        "xsdMapping": "restrictive",
+        "type": "number"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction_totalDigits.json#"
 }

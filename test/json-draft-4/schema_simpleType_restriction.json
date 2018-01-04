@@ -1,14 +1,38 @@
 {
-  "definitions": { 
-    "IOC-Country-Code": { 
-      "enum": [
-        "AFG", 
-        "AHO",
-        "ALB",
-        "ALG" 
-      ], 
-      "type": "string",
-      "description": "Three-letter country code of 212 countries and areas, used by the International Olympic Committee (IOC)."
-    }
-  }
+    "definitions": {"IOC-Country-Code": {
+        "enum": [
+            "AFG",
+            "AHO",
+            "ALB",
+            "ALG"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "AFG",
+                "description": ""
+            },
+            {
+                "value": "AHO",
+                "description": ""
+            },
+            {
+                "value": "ALB",
+                "description": ""
+            },
+            {
+                "value": "ALG",
+                "description": ""
+            }
+        ],
+        "type": "string",
+        "description": "Three-letter country code of 212 countries and areas,\n              used by the International Olympic Committee (IOC)."
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "schema_simpleType_restriction.json#"
 }

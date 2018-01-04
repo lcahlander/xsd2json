@@ -1,9 +1,15 @@
 {
-  "definitions": {
-    "dog": {
-      "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
-    }
-  }
+    "definitions": {"dog": {
+        "xsdType": "positiveInteger",
+        "xsdMapping": "restrictive",
+        "minimum": 0,
+        "exclusiveMinimum": true,
+        "type": "integer"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction5.json#"
 }

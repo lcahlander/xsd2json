@@ -73,7 +73,7 @@ return
     map:entry('id', if (map:contains($options, $xsd2json:SCHEMAID)) then map:get($options, $xsd2json:SCHEMAID) || '#' else 'output.json#'),
     map:entry('$schema', 'http://json-schema.org/draft-04/schema#'),
     map:entry('version', '0.0.1'),
-    if ($base/xs:complexType[@name])
+    if (($base/xs:complexType[@name], $base/xs:simpleType[@name]))
     then
         (
             map:entry('type', 'object'),
@@ -243,7 +243,7 @@ declare function xsd2json:substring-before-last-match($arg as xs:string?, $regex
  :)
 declare function xsd2json:loadSchema($path as xs:string) {
     try {
-        fn:doc($path)/xs:schema
+        xsd2json:change-element-ns-deep(fn:doc($path)/xs:schema, "http://www.w3.org/2001/XMLSchema", "xs")
     } catch * {
         'Falied to load ' || $path
     }
@@ -275,18 +275,19 @@ declare function xsd2json:prefixes-from-namespace($uri as xs:string?, $model as 
 
 declare function xsd2json:parse-level($ns as xs:string, $base, $namespaces as xs:string*) as map(*) {
     let $baseuri := fn:base-uri($base)
+    let $cleansed-base := xsd2json:change-element-ns-deep($base, "http://www.w3.org/2001/XMLSchema", "xs")
     let $included := 
                         try {
-                            for $include in $base/xs:include
+                            for $include in $cleansed-base/xs:include
                             let $loadPath := fn:concat(xsd2json:substring-before-last-match(xs:string($baseuri), '/'), '/', $include/@schemaLocation/string())
                             return
-                                fn:doc($loadPath)/*
+                                xsd2json:change-element-ns-deep(fn:doc($loadPath)//xs:schema/node(), "http://www.w3.org/2001/XMLSchema", "xs")
                         } catch * {
                             ()
                         }
     return
         map:merge((
-        map:entry(xs:string($ns), ($base, $included)),
+        map:entry(xs:string($ns), element { $cleansed-base/name() } { $cleansed-base/@*, $cleansed-base/node(), $included }),
         try {
             for $prefix in fn:in-scope-prefixes($base)
             let $trace := fn:trace($prefix, 'Prefix loaded: ')
@@ -1307,6 +1308,8 @@ declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
                     map { 'type': 'null' }
                 }
             }
+            
+            case 'anyType' return map { }
 
             case 'token' return map {                 
                 'type': 'string' 
@@ -1504,6 +1507,8 @@ declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*)
                     map { 'type': 'null' }
                 }
             }
+
+            case 'anyType' return map { }
 
             case 'token' return map {                 
                 'type': 'string' 
@@ -2113,10 +2118,8 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
                     xsd2json:passthru($node, $model)
                  )
             else
-                let $prefix := fn:substring-before($node/@base, ':')
-                let $postfix := fn:substring-after($node/@base, ':')
-                let $ns := map:get($model, $prefix)
-                let $schema := map:get($model, $ns)
+                let $postfix := xsd2json:postfix-from-qname($node/@base)
+                let $schema := xsd2json:schema-from-qname($node, $node/@base, $model)
                 return
                     if ($schema//xs:complexType[@name = $postfix])
                     then 
@@ -2311,7 +2314,11 @@ declare function xsd2json:simpleType($node as node(), $model as map(*)) as map(*
  : Child Elements:
 
  :)
-    xsd2json:passthru($node, $model)
+    let $content := xsd2json:passthru($node, $model)
+    return 
+        if ($node/@name and map:contains($model, 'definitions'))
+        then map:entry($node/@name/string(), $content)
+        else $content
 };
 
 (:~

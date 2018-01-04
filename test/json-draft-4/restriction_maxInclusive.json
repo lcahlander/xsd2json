@@ -1,9 +1,15 @@
 {
-  "definitions": {
-    "dog": {
-      "type": "integer",
-      "maximum": 100,
-      "exclusiveMaximum": false
-    }
-  }
+    "definitions": {"dog": {
+        "maximum": 100,
+        "exclusiveMaximum": false,
+        "xsdType": "integer",
+        "xsdMapping": "restrictive",
+        "type": "integer"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction_maxInclusive.json#"
 }

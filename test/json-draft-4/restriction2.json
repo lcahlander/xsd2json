@@ -1,9 +1,15 @@
 {
-  "definitions": {
-    "dog": {
-      "minLength": 5,
-      "maxLength": 10,
-      "type": "string"
-    }
-  }
+    "definitions": {"dog": {
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "maxLength": 10,
+        "minLength": 5,
+        "type": "string"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction2.json#"
 }
