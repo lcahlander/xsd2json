@@ -92,14 +92,15 @@ return
     if ((fn:count($base/xs:element) eq 1) and fn:not(($base/xs:complexType[@name], $base/xs:simpleType[@name])))
     then
         let $element := $base/xs:element
-        let $documentation := ($base/xs:annotation/xs:documentation, $element/xs:annotation/xs:documentation)
+        let $documentation := ($base/xs:annotation/xs:documentation, $element/xs:annotation/xs:documentation, $element/xs:complexType/xs:annotation/xs:documentation)
         return
     (
         xsd2json:documentation($documentation, map { }),
         if ($element/@type)
             then xsd2json:element-type($element, map:merge(($m, map:entry('noDoc', fn:true()))))
         else (),
-            xsd2json:passthru($element, map:merge(($m, map:entry('noDoc', fn:true()))))
+        xsd2json:passthru($element, map:merge(($m, map:entry('noDoc', fn:true())))),
+        map:entry('additionalProperties', fn:ends-with($element/@type, 'anyType'))
     )
     else
     (
@@ -111,9 +112,9 @@ return
                 for $element in $base/xs:element
                 return xsd2json:element($element, $m)
             ))
-        )
-    ),
-    map:entry('additionalProperties', fn:false())
+        ),
+        map:entry('additionalProperties', fn:false())
+    )
 ))};
 
 (:~
@@ -587,8 +588,10 @@ declare function xsd2json:maxOccurs-element($node as node(), $model as map(*)) a
  : Child Elements:
 
  :)
-    if ($node/@maxOccurs and $node/@maxOccurs/fn:string(.) ne '1')
+    if (($node/@maxOccurs and $node/@maxOccurs/fn:string(.) ne '1') or fn:exists($node/following-sibling::xs:element[@name = $node/@name]))
     then 
+        let $count := if ($node/@maxOccurs/fn:string(.) = 'unbounded') then 'unbounded' else xs:string(fn:max((xs:integer($node/@maxOccurs), (fn:count($node/following-sibling::xs:element[@name = $node/@name]) + 1))))
+        return
         if ($node/@name)
         then 
             map:entry($node/@name/string(.), $node/@maxOccurs/fn:string(.))
@@ -773,10 +776,14 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
  :)
         if ($node/@name)
         then 
-            if ($node/@type)
+            if ($node/@type or $node/xs:simpleType/xs:restriction/@base)
             then 
-                if (xsd2json:is-xsd-datatype($node/@type))
-                then map:entry(
+                let $type := ($node/@type/string(), $node/xs:simpleType/xs:restriction/@base/string(), 'string')[1]
+                return
+                if (xsd2json:is-xsd-datatype($type))
+                then 
+                    map:merge((
+                        map:entry(
                             '@' || $node/@name/string(), 
                             map:merge((
                                     if ($node/@fixed)
@@ -785,7 +792,7 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
                                             map:entry(
                                                 'enum', 
                                                 array { 
-                                                    switch (xsd2json:dataType-basic($node/@type))
+                                                    switch (xsd2json:dataType-basic($type))
                                                     case 'integer' return xs:integer($node/@fixed) 
                                                     case 'number' return xs:decimal($node/@fixed) 
                                                     case 'boolean' return xs:boolean($node/@fixed) 
@@ -794,11 +801,26 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
                                             )
                                         )
                                     else (),
+                                    if ($node/@default)
+                                    then
+                                        (
+                                            map:entry(
+                                                'default', 
+                                                switch (xsd2json:dataType-basic($type))
+                                                case 'integer' return xs:integer($node/@default) 
+                                                case 'number' return xs:decimal($node/@default) 
+                                                case 'boolean' return xs:boolean($node/@default) 
+                                                default return xs:string($node/@default) 
+                                            )
+                                        )
+                                    else
+                                        (),
                                     map:entry('isAttribute', fn:true()),
-                                    xsd2json:dataType($node/@type, $model), 
+                                    xsd2json:dataType($type, $model), 
                                     xsd2json:passthru($node, $model)
                                     ))
-                     )
+                        )
+                     ))
                 else
                     let $postfix := xsd2json:postfix-from-qname($node/@type)
                     let $schema := xsd2json:schema-from-qname($node, $node/@type, $model)
@@ -827,6 +849,20 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
                                                     )
                                                 )
                                             else (),
+                                            if ($node/@default)
+                                            then
+                                                (
+                                                    map:entry(
+                                                        'default', 
+                                                        switch (xsd2json:simpleType-base($node, $model))
+                                                        case 'integer' return xs:integer($node/@default) 
+                                                        case 'number' return xs:decimal($node/@default) 
+                                                        case 'boolean' return xs:boolean($node/@default) 
+                                                        default return xs:string($node/@default) 
+                                                    )
+                                                )
+                                            else
+                                                (),
                                             map:entry('isAttribute', fn:true()), 
                                             xsd2json:simpleType($ct, map:merge(($model, map:entry('noName', fn:true()))))
                                         ))
@@ -1680,13 +1716,12 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                         return 
                             map:merge((
                                 map:entry('type', 'array'), 
-                                map:entry('minItems', xs:integer(($node/@minOccurs/string(), '1')[1])), 
+                                map:entry('minItems', xs:integer(($node/@minOccurs/string(), if (fn:exists($node/following-sibling::xs:element[@name = $node/@name])) then fn:count($node/following-sibling::xs:element[@name = $node/@name]) + 1 else (), '1')[1])), 
                                 map:entry('maxItems', xs:integer($maxOccurs)), 
                                 map:entry('items', map:merge((map:entry('type', 'object'), $content)))
                             ))
             )
-    else 
-        let $postfix := xsd2json:postfix-from-ref($node)
+    else let $postfix := xsd2json:postfix-from-ref($node)
         let $schema := xsd2json:schema-from-ref($node, $model)
         return
             if ($schema//xs:element[@name = $postfix])

@@ -1,12 +1,20 @@
 {
-  "description": "Some annotation.",
-  "type": "object",
-  "properties": {
-    "two": {
-      "type": "string"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+        "two": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        },
+        "three": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        }
     },
-    "three": {
-      "type": "string"
-    }
-  }
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "schema5.json#",
+    "description": "Some annotation."
 }

@@ -1,15 +1,21 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "integer",
-          "maximum": 8,
-          "exclusiveMaximum": false,
-          "enum": [ 4 ]
-        }
-      }
-    }
-  }
+    "definitions": {"pets": {
+        "properties": {"@amount": {
+            "maximum": 8,
+            "enum": [4],
+            "exclusiveMaximum": false,
+            "xsdType": "integer",
+            "xsdMapping": "restrictive",
+            "isAttribute": true,
+            "type": "integer"
+        }},
+        "additionalProperties": false,
+        "type": "object"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "complexType_attribute9.json#"
 }
