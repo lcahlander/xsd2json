@@ -1,15 +1,21 @@
 {
-  "properties": {
-    "orderid": {
-      "type": "string"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+        "orderperson": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        },
+        "@orderid": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "isAttribute": true,
+            "type": "string"
+        }
     },
-    "orderperson": {
-      "type": "string"
-    }
-  },
-  "required": [
-    "orderid",
-    "orderperson"
-  ],
-  "type": "object"
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "shiporder.json#",
+    "required": ["orderperson"]
 }

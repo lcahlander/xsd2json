@@ -1,18 +1,24 @@
 {
-  "definitions": {
-    "dog": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/myString"
+    "definitions": {
+        "dog": {
+            "maxLength": 10,
+            "minLength": 5,
+            "myString": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            }
         },
-        {
-          "minLength": 5,
-          "maxLength": 10
+        "myString": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
         }
-      ]
     },
-    "myString": {
-      "type": "string"
-    }
-  }
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction4.json#"
 }

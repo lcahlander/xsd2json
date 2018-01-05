@@ -828,7 +828,7 @@ declare function xsd2json:attribute($node as node(), $model as map(*)) as map(*)
                                                 )
                                             else (),
                                             map:entry('isAttribute', fn:true()), 
-                                            xsd2json:simpleType($ct, $model)
+                                            xsd2json:simpleType($ct, map:merge(($model, map:entry('noName', fn:true()))))
                                         ))
                                     )
                                 else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
@@ -1581,10 +1581,10 @@ declare function xsd2json:element-type($node as node(), $model as map(*)) as map
             xsd2json:passthru($node, $model)
         )
     else
-        let $prefix := fn:substring-before($node/@type, ':')
-        let $postfix := fn:substring-after($node/@type, ':')
-        let $ns := (map:get($model, $prefix), 'target')[1]
-        let $schema := map:get($model, $ns)
+        let $prefix := if (fn:contains($node/@type, ':')) then fn:substring-before($node/@type, ':') else ""
+        let $postfix := if (fn:contains($node/@type, ':')) then fn:substring-after($node/@type, ':') else $node/@type/string()
+        let $ns := if (fn:contains($node/@type, ':')) then (map:get($model, $prefix), 'target')[1] else ()
+        let $schema := if (fn:contains($node/@type, ':')) then map:get($model, $ns) else $node/ancestor::xs:schema
         let $emodel := 
             if ($node/xs:annotation/xs:documentation)
             then map:merge(($model, map:entry('noDoc', fn:true())))
@@ -2322,6 +2322,9 @@ declare function xsd2json:simpleType($node as node(), $model as map(*)) as map(*
  :)
     let $content := xsd2json:passthru($node, $model)
     return 
+        if (map:contains($model, "noName"))
+        then $content
+        else
         if ($node/@name and map:contains($model, 'definitions'))
         then map:entry($node/@name/string(), $content)
         else $content

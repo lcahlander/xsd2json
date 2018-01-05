@@ -1,16 +1,25 @@
 {
-    "definitions": {"pets": {
-        "properties": {"@amount": {
+    "definitions": {
+        "myInteger": {
             "maximum": 8,
             "exclusiveMaximum": false,
             "xsdType": "integer",
             "xsdMapping": "restrictive",
-            "isAttribute": true,
             "type": "integer"
-        }},
-        "additionalProperties": false,
-        "type": "object"
-    }},
+        },
+        "pets": {
+            "properties": {"@amount": {
+                "maximum": 8,
+                "exclusiveMaximum": false,
+                "xsdType": "integer",
+                "xsdMapping": "restrictive",
+                "isAttribute": true,
+                "type": "integer"
+            }},
+            "additionalProperties": false,
+            "type": "object"
+        }
+    },
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {},
     "version": "0.0.1",

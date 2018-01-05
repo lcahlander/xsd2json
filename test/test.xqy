@@ -14,6 +14,9 @@ element { 'xsd' } {
     for $child in file:list(fn:concat(file:base-dir(), 'xsd')) 
     order by $child
     return 
+        if (fn:contains($child, "recursive"))
+        then ()
+        else
         if (fn:ends-with($child, '.xsd'))
         then
             let $name := fn:substring-before($child, '.xsd')
