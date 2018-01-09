@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="dog" fixed="finn">
+        <xs:simpleType>
+            <xs:list itemType="xs:string"></xs:list>
+        </xs:simpleType>
+    </xs:element>
+</xs:schema>

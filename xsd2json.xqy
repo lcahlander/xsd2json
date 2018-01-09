@@ -1614,6 +1614,21 @@ declare function xsd2json:element-type($node as node(), $model as map(*)) as map
     then 
         (
             xsd2json:dataType($node/@type, $model),
+            if ($node/@fixed)
+            then 
+                (
+                    map:entry(
+                        'enum', 
+                        array { 
+                            switch (xsd2json:dataType-basic($node/@type))
+                            case 'integer' return xs:integer($node/@fixed) 
+                            case 'number' return xs:decimal($node/@fixed) 
+                            case 'boolean' return xs:boolean($node/@fixed) 
+                            default return xs:string($node/@fixed) 
+                        }
+                    )
+                )
+            else (),
             xsd2json:passthru($node, $model)
         )
     else
@@ -1633,17 +1648,56 @@ declare function xsd2json:element-type($node as node(), $model as map(*)) as map
                 if ($schema//xs:complexType[@name = $postfix])
                 then 
                     let $ct := $schema//xs:complexType[@name = $postfix]
-                    return
+                    let $content := 
                         if ($ct)
                         then xsd2json:complexType($ct, $emodel)
                         else fn:error(xs:QName('xsd2json:err057'), 'missing complexType', $postfix)
+                    return
+                        (
+                            $content,
+                            if ($node/@fixed)
+                            then 
+                                (
+                                    map:entry(
+                                        'enum', 
+                                        array { 
+                                            switch (map:get($content, 'type'))
+                                            case 'integer' return xs:integer($node/@fixed) 
+                                            case 'number' return xs:decimal($node/@fixed) 
+                                            case 'boolean' return xs:boolean($node/@fixed) 
+                                            default return xs:string($node/@fixed) 
+                                        }
+                                    )
+                                )
+                            else ()
+                        )
+                        
                 else if ($schema//xs:simpleType[@name = $postfix])
                 then 
-                    let $ct := $schema//xs:simpleType[@name = $postfix]
-                    return
-                        if ($ct)
-                        then xsd2json:simpleType($ct, $emodel)
+                    let $st := $schema//xs:simpleType[@name = $postfix]
+                    let $content := 
+                        if ($st)
+                        then xsd2json:simpleType($st, $emodel)
                         else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
+                    return
+                        (
+                            $content,
+                            if ($node/@fixed)
+                            then 
+                                (
+                                    map:entry(
+                                        'enum', 
+                                        array { 
+                                            switch (map:get($content, 'type'))
+                                            case 'integer' return xs:integer($node/@fixed) 
+                                            case 'number' return xs:decimal($node/@fixed) 
+                                            case 'boolean' return xs:boolean($node/@fixed) 
+                                            default return xs:string($node/@fixed) 
+                                        }
+                                    )
+                                )
+                            else ()
+                        )
                 else ()
             )
     ))
@@ -1688,6 +1742,7 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
             )
         else
             let $enhance := map:put($model, 'noDoc', fn:true())
+            let $passthrough-content := xsd2json:passthru($node, $model)
             let $content := map:merge((   
                 if ($node/xs:annotation/xs:documentation)
                 then
@@ -1698,8 +1753,28 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                 then if (($node/xs:attribute, $node/xs:attributeGroup))
                      then map:entry('value', xsd2json:element-type($node, $model))
                      else xsd2json:element-type($node, $model)
+                else if ($node/@fixed)
+                then 
+                    let $err := fn:error(xs:QName("xsd2json:aaa"), "fixed type is ", xs:string(map:get($passthrough-content, 'type')))
+                    return
+                    (
+                        map:entry(
+                            'enum', 
+                            array { 
+                                switch (xs:string((
+                                    map:get($passthrough-content, 'type'),
+                                    map:get(map:get($passthrough-content, 'items')[1], 'type')
+                                    )[1])
+                                )
+                                case 'integer' return xs:integer($node/@fixed) 
+                                case 'number' return xs:decimal($node/@fixed) 
+                                case 'boolean' return xs:boolean($node/@fixed) 
+                                default return xs:string($node/@fixed) 
+                            }
+                        )
+                    )
                 else (),
-                xsd2json:passthru($node, $model)))
+                $passthrough-content))
             return
                 map:entry(
                     $node/@name/string(),

@@ -1,13 +1,33 @@
 {
-  "definitions": {
-    "pets": {
-      "enum": [
+    "enum": [
         "cat",
         "dog",
         "parrot",
         "hamster"
-      ],
-      "type": "string"
-    }
-  }
+    ],
+    "xsdType": "string",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "xsdMapping": "restrictive",
+    "xsdEnum": [
+        {
+            "value": "cat",
+            "description": ""
+        },
+        {
+            "value": "dog",
+            "description": ""
+        },
+        {
+            "value": "parrot",
+            "description": ""
+        },
+        {
+            "value": "hamster",
+            "description": ""
+        }
+    ],
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "string",
+    "id": "import.json#"
 }
