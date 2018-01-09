@@ -1,24 +1,50 @@
 {
-  "definitions": {
-    "yesno": {
-      "enum": [
-        "yes",
-        "no"
-      ],
-      "type":"string"
-    },
-    "dog": {
-      "properties": {
-        "animal": {
-          "allOf": [
-            {
-              "$ref":"#/definitions/yesno"
-            }
-          ],
-          "enum": [ "yes" ]
+    "definitions": {
+        "yesno": {
+            "enum": [
+                "yes",
+                "no"
+            ],
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "xsdEnum": [
+                {
+                    "value": "yes",
+                    "description": ""
+                },
+                {
+                    "value": "no",
+                    "description": ""
+                }
+            ],
+            "type": "string"
+        },
+        "dog": {
+            "properties": {"@animal": {
+                "enum": ["yes"],
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "xsdEnum": [
+                    {
+                        "value": "yes",
+                        "description": ""
+                    },
+                    {
+                        "value": "no",
+                        "description": ""
+                    }
+                ],
+                "isAttribute": true,
+                "type": "string"
+            }},
+            "additionalProperties": false,
+            "type": "object"
         }
-      },
-      "type":"object"
-    }
-  }
+    },
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction_enumeration6.json#"
 }

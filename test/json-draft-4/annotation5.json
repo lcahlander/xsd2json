@@ -5,5 +5,6 @@
     "version": "0.0.1",
     "additionalProperties": false,
     "type": "string",
-  "description": "<p>Some<br><i>styled</i><br>content!</p>"
+    "id": "annotation5.json#",
+    "description": "&lt;p&gt;Some &lt;br/&gt;\n          &lt;i&gt;styled&lt;/i&gt; &lt;br/&gt;\n          content!\n          &lt;/p&gt;"
 }

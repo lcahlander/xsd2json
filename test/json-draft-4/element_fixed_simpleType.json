@@ -1,3 +1,20 @@
 {
-  "key":"value"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+        "cat": {
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        },
+        "dog": {
+            "enum": ["finn"],
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "type": "string"
+        }
+    },
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "element_fixed_simpleType.json#"
 }
