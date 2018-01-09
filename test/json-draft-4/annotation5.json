@@ -6,5 +6,5 @@
     "additionalProperties": false,
     "type": "string",
     "id": "annotation5.json#",
-    "description": "&lt;p&gt;Some &lt;br/&gt;\n          &lt;i&gt;styled&lt;/i&gt; &lt;br/&gt;\n          content!\n          &lt;/p&gt;"
+    "description": "<p>Some <br/>\n          <i>styled<\/i> <br/>\n          content!\n          <\/p>"
 }
