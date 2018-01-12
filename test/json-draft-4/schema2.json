@@ -1,13 +1,45 @@
 {
-  "allOf": [
-    {
-      "$ref": "#/definitions/myType"
-    }
-  ],
-  "definitions": {
-    "myType": {
-      "type": "string",
-      "enum": [ "dog", "cat" ]
-    }
-  }
+    "definitions": {"myType": {
+        "enum": [
+            "dog",
+            "cat"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "dog",
+                "description": ""
+            },
+            {
+                "value": "cat",
+                "description": ""
+            }
+        ],
+        "type": "string"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"pet": {
+        "enum": [
+            "dog",
+            "cat"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "dog",
+                "description": ""
+            },
+            {
+                "value": "cat",
+                "description": ""
+            }
+        ],
+        "type": "string"
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "schema2.json#"
 }

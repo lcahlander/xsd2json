@@ -1,5 +1,5 @@
 {
-    "maximum": "18446744073709551615",
+    "maximum": 18446744073709551615,
     "exclusiveMaximum": false,
     "xsdType": "unsignedLong",
     "$schema": "http://json-schema.org/draft-04/schema#",

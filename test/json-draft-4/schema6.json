@@ -1,24 +1,27 @@
 {
-  "oneOf": [
-    {
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "string"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "version": "0.0.1",
+    "id": "schema6.json#",
+    "oneOf": [
+        {
+            "properties": {"dog": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            }},
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["dog"]
+        },
+        {
+            "properties": {"cat": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            }},
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["cat"]
         }
-      },
-      "additionalProperties": false,
-      "required": [ "dog" ]
-    },
-    {
-      "type": "object",
-      "properties": {
-        "cat": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "required": [ "cat" ]
-    }
-  ]
+    ]
 }

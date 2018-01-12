@@ -103,19 +103,34 @@ return
         xsd2json:passthru($element, map:merge(($m, map:entry('noDoc', fn:true())))),
         map:entry('additionalProperties', fn:ends-with($element/@type, 'anyType'))
     )
-    else
+    else if (fn:count($base-w-includes/xs:element) gt 1)
+    then
     (
-        map:entry('type', 'object'),
         xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
         map:entry(
-            'properties', 
-            map:merge((
+            'oneOf', 
+            array { 
                 for $element in $base-w-includes/xs:element
-                return xsd2json:element($element, $m)
-            ))
-        ),
-        map:entry('additionalProperties', fn:false())
+                return 
+                    map:merge((
+                        map:entry('properties', xsd2json:element($element, $m)),
+                        map:entry('additionalProperties', fn:false()),
+                        map:entry('type', 'object'),
+                        map:entry(
+                            'required', 
+                            array { 
+                                $element/@name/string() 
+                            })
+                    ))
+            }
+        )
     )
+    else
+        map:merge((
+            xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
+            map:entry('additionalProperties', fn:false()),
+            map:entry('type', 'object')
+        ))
 ))};
 
 (:~

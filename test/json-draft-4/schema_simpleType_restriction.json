@@ -30,7 +30,6 @@
         "description": "Three-letter country code of 212 countries and areas,\n              used by the International Olympic Committee (IOC)."
     }},
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {},
     "version": "0.0.1",
     "additionalProperties": false,
     "type": "object",
