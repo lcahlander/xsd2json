@@ -1,24 +1,49 @@
 {
-  "definitions": {
-    "pets": {
-      "enum": [
-        "cat",
-        "dog",
-        "parrot",
-        "hamster"
-      ],
-      "type": "string"
-    },
-    "myType": {
-      "required": [
-        "dog"
-      ],
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "string"
+    "definitions": {
+        "myType": {
+            "properties": {"dog": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            }},
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["dog"]
+        },
+        "pets": {
+            "enum": [
+                "cat",
+                "dog",
+                "parrot",
+                "hamster"
+            ],
+            "xsdType": "string",
+            "xsdMapping": "restrictive",
+            "xsdEnum": [
+                {
+                    "value": "cat",
+                    "description": ""
+                },
+                {
+                    "value": "dog",
+                    "description": ""
+                },
+                {
+                    "value": "parrot",
+                    "description": ""
+                },
+                {
+                    "value": "hamster",
+                    "description": ""
+                }
+            ],
+            "type": "string"
         }
-      }
-    }
-  }
+    },
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "include2.json#"
 }

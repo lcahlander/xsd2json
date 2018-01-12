@@ -67,32 +67,33 @@ declare function xsd2json:change-element-ns-deep
  :)
 declare function xsd2json:run($base as node(), $options as map(*)) as map(*) {
 let $m := map:merge((xsd2json:parse-level('target', $base, ()), $options))
+let $base-w-includes := map:get($m, 'target')
 
 return 
     map:merge((
     map:entry('id', if (map:contains($options, $xsd2json:SCHEMAID)) then map:get($options, $xsd2json:SCHEMAID) || '#' else 'output.json#'),
     map:entry('$schema', 'http://json-schema.org/draft-04/schema#'),
     map:entry('version', '0.0.1'),
-    if (($base/xs:complexType[@name], $base/xs:simpleType[@name]))
+    if (($base-w-includes/xs:complexType[@name], $base-w-includes/xs:simpleType[@name]))
     then
         (
             map:entry('type', 'object'),
             map:entry(
                 'definitions', 
                 map:merge((
-                    for $element in $base/xs:complexType[@name]
+                    for $element in $base-w-includes/xs:complexType[@name]
                     return xsd2json:complexType($element, map:merge((map:entry('definitions', fn:true()), $m))),
-                    for $element in $base/xs:simpleType[@name]
+                    for $element in $base-w-includes/xs:simpleType[@name]
                     return xsd2json:simpleType($element, map:merge((map:entry('definitions', fn:true()), $m)))
                 ))
             )
         )
     else 
         (),
-    if ((fn:count($base/xs:element) eq 1) and fn:not(($base/xs:complexType[@name], $base/xs:simpleType[@name])))
+    if ((fn:count($base-w-includes/xs:element) eq 1) and fn:not(($base-w-includes/xs:complexType[@name], $base-w-includes/xs:simpleType[@name])))
     then
-        let $element := $base/xs:element
-        let $documentation := ($base/xs:annotation/xs:documentation, $element/xs:annotation/xs:documentation, $element/xs:complexType/xs:annotation/xs:documentation)
+        let $element := $base-w-includes/xs:element
+        let $documentation := ($base-w-includes/xs:annotation/xs:documentation, $element/xs:annotation/xs:documentation, $element/xs:complexType/xs:annotation/xs:documentation)
         return
     (
         xsd2json:documentation($documentation, map { }),
@@ -105,11 +106,11 @@ return
     else
     (
         map:entry('type', 'object'),
-        xsd2json:documentation($base/xs:annotation/xs:documentation, map { }),
+        xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
         map:entry(
             'properties', 
             map:merge((
-                for $element in $base/xs:element
+                for $element in $base-w-includes/xs:element
                 return xsd2json:element($element, $m)
             ))
         ),
