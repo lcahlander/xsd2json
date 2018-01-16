@@ -103,6 +103,13 @@ return
         xsd2json:passthru($element, map:merge(($m, map:entry('noDoc', fn:true())))),
         map:entry('additionalProperties', fn:ends-with($element/@type, 'anyType'))
     )
+    else if (fn:count($base-w-includes/xs:element) = 0)
+    then
+        map:merge((
+            xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
+            map:entry('additionalProperties', fn:false()),
+            map:entry('type', 'object')
+        ))
     else if (fn:count($base-w-includes/xs:element) gt 1)
     then
     (
@@ -126,11 +133,21 @@ return
         )
     )
     else
-        map:merge((
-            xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
-            map:entry('additionalProperties', fn:false()),
-            map:entry('type', 'object')
-        ))
+    (
+        xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
+        for $element in $base-w-includes/xs:element
+        return 
+            map:merge((
+                map:entry('properties', xsd2json:element($element, $m)),
+                map:entry('additionalProperties', fn:false()),
+                map:entry('type', 'object'),
+                map:entry(
+                    'required', 
+                    array { 
+                        $element/@name/string() 
+                    })
+            ))
+    )
 ))};
 
 (:~
@@ -604,20 +621,177 @@ declare function xsd2json:maxOccurs-element($node as node(), $model as map(*)) a
  : Child Elements:
 
  :)
-    if (($node/@maxOccurs and $node/@maxOccurs/fn:string(.) ne '1') or fn:exists($node/following-sibling::xs:element[@name = $node/@name]))
-    then 
-        let $count := if ($node/@maxOccurs/fn:string(.) = 'unbounded') then 'unbounded' else xs:string(fn:max((xs:integer($node/@maxOccurs), (fn:count($node/following-sibling::xs:element[@name = $node/@name]) + 1))))
-        return
+    if ($node/@name)
+    then
+        let $count := 
+            if ($node/@maxOccurs)
+            then
+                if ($node/@maxOccurs/fn:string(.) = 'unbounded') 
+                then 999999999999999
+                else xs:integer($node/@maxOccurs)
+            else 1
+        let $preceding-count := 
+            for $pnode in $node/following-sibling::xs:element[@name = $node/@name]
+            return 
+                if ($pnode/@maxOccurs)
+                then
+                    if ($pnode/@maxOccurs/fn:string(.) = 'unbounded') 
+                    then 999999999999999
+                    else xs:integer($pnode/@maxOccurs)
+                else 1
+        let $total-count := fn:sum(($count, $preceding-count), 0)
+        return 
+            map:entry($node/@name/string(.), if ($total-count ge 999999999999999) then 'unbounded' else xs:string($total-count))
+    else
+        let $count := 
+            if ($node/@maxOccurs)
+            then
+                if ($node/@maxOccurs/fn:string(.) = 'unbounded') 
+                then 999999999999999
+                else xs:integer($node/@maxOccurs)
+            else 1
+        let $preceding-count := 
+            for $pnode in $node/following-sibling::xs:element[@ref = $node/@ref]
+            return 
+                if ($pnode/@maxOccurs)
+                then
+                    if ($pnode/@maxOccurs/fn:string(.) = 'unbounded') 
+                    then 999999999999999
+                    else xs:integer($pnode/@maxOccurs)
+                else 1
+        let $total-count := fn:sum(($count, $preceding-count), 0)
+        return 
+            map:entry($node/@ref/string(.), if ($total-count ge 999999999999999) then 'unbounded' else xs:string($total-count))
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:minOccurs-dispatch($node as node()?, $model as map(*)) as map(*) {
+    if ($node) then 
+    typeswitch($node) 
+        case element(xs:element) return xsd2json:minOccurs-element($node, $model)
+        case element(xs:attribute) return xsd2json:minOccurs-attribute($node, $model)
+        case element(xs:attributeGroup) return xsd2json:minOccurs-attributeGroup($node, $model)
+        default return xsd2json:minOccurs-passthru($node, $model) 
+    else map { }
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:minOccurs-passthru($node as node()?, $model as map(*)) as map(*) {
+    map:merge(if ($node) then for $cnode in $node/* return xsd2json:minOccurs-dispatch($cnode, $model) else ())
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:minOccurs-element($node as node(), $model as map(*)) as map(*) {
+    (: Attributes:
+
+ : Child Elements:
+
+ :)
+    map:merge((
         if ($node/@name)
-        then 
-            map:entry($node/@name/string(.), $node/@maxOccurs/fn:string(.))
-        else if ($node/@ref)
-        then 
-            map:entry(fn:substring-after($node/@ref/string(.), ':'), $node/@maxOccurs/fn:string(.))
-        else 
-            map { }
-    else 
-        map { }
+        then
+            let $count := 
+                if ($node/@minOccurs)
+                then xs:integer($node/@minOccurs)
+                else 1
+            let $preceding-count := 
+                for $pnode in $node/following-sibling::xs:element[@name = $node/@name]
+                return 
+                    if ($pnode/@minOccurs)
+                    then xs:integer($pnode/@minOccurs)
+                    else 1
+            let $total-count := fn:sum(($count, $preceding-count), 0)
+            return 
+                map:entry($node/@name/string(.), $total-count)
+        else
+            let $count := 
+                if ($node/@minOccurs)
+                then xs:integer($node/@minOccurs)
+                else 1
+            let $preceding-count := 
+                for $pnode in $node/following-sibling::xs:element[@ref = $node/@ref]
+                return 
+                    if ($pnode/@minOccurs)
+                    then xs:integer($pnode/@minOccurs)
+                    else 1
+            let $total-count := fn:sum(($count, $preceding-count), 0)
+            return 
+                map:entry($node/@ref/string(.), $total-count),
+        for $attributeGroup in $node/xs:attributeGroup
+        return xsd2json:minOccurs-attributeGroup($attributeGroup, $model),
+        for $attribute in $node/xs:attribute
+        return xsd2json:minOccurs-attribute($attribute, $model)
+    ))
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:minOccurs-attributeGroup($node as node(), $model as map(*)) as map(*) {
+    (: Attributes:
+
+ : Child Elements:
+
+ :)
+    map:merge((
+        for $attribute in $node/xs:attribute
+        return xsd2json:minOccurs-attribute($attribute, $model)
+    ))
+};
+
+(:~
+ :
+ : Used for determining cardinality.
+ :
+ : @author  Loren Cahlander
+ : @version 1.0
+ : @param   $node the current node being processed
+ : @param   $model a map(*) used for passing additional information between the levels
+ :)
+declare function xsd2json:minOccurs-attribute($node as node(), $model as map(*)) as map(*) {
+    (: Attributes:
+
+ : Child Elements:
+
+ :)
+    let $count := 
+        if (($node/@minOccurs/fn:number(.) = 1) or ($node[@use = 'required']))
+        then 1
+        else 0
+    return 
+    if ($node/@name)
+    then map:entry('@' || $node/@name/string(.), $count)
+    else map:entry('@' || $node/@ref/string(.), $count)
 };
 
 (:~
@@ -655,52 +829,90 @@ declare function xsd2json:extension($node as node(), $model as map(*)) as map(*)
  : Child Elements:
 
  :)
-    map:merge((
-            if (xsd2json:is-xsd-datatype($node/@base))
-            then (
-                    xsd2json:dataType($node/@base, $model), 
-                    xsd2json:passthru($node, $model)
-                 )
-            else
-                let $prefix := fn:substring-before($node/@base, ':')
-                let $postfix := fn:substring-after($node/@base, ':')
-                let $ns := if ($prefix) then map:get($model, $prefix) else map:get($model, 'target')
-                let $schema := map:get($model, $ns)
+    if (xsd2json:is-xsd-datatype($node/@base))
+    then 
+        if ($node/xs:attribute)
+        then
+            let $minOccurs := xsd2json:minOccurs-passthru($node, $model)
+            let $required := for $key in map:keys($minOccurs)
+                             order by $key
+                             return if (map:get($minOccurs, $key) gt 0) then $key else ()
+            return
+            map:merge((
+                map:entry('type', 'object'),
+                map:entry(
+                    'properties',
+                    map:merge((
+                        map:entry(
+                            'value', 
+                            xsd2json:dataType($node/@base, $model)
+                        ), 
+                        xsd2json:passthru($node, $model)
+                    ))
+                ),
+                map:entry('additionalProperties', fn:false()),
+                map:entry('required', array { for $item in ('value', $required) order by $item return $item } )
+             ))
+        else
+            map:merge((
+                xsd2json:dataType($node/@base, $model), 
+                xsd2json:passthru($node, $model)
+             ))
+    else
+		let $postfix := xsd2json:postfix-from-qname($node/@base)
+		let $schema := xsd2json:schema-from-qname($node, $node/@base, $model)
+		let $content :=
+            if ($schema//xs:complexType[@name = $postfix])
+            then 
+                let $ct := $schema//xs:complexType[@name = $postfix]
                 return
-                    if ($schema//xs:complexType[@name = $postfix])
-                    then 
-                        let $ct := $schema//xs:complexType[@name = $postfix]
-                        return
-                            if ($ct)
-                            then xsd2json:complexType($ct, $model)
-                            else fn:error(xs:QName('xsd2json:err057'), 'missing complexType', $postfix)
-                    else if ($schema//xs:simpleType[@name = $postfix])
-                    then 
-                        let $ct := $schema//xs:simpleType[@name = $postfix]
-                        return
-                            if ($ct)
-                            then xsd2json:simpleType($ct, $model)
-                            else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
-                    else if ($schema//xs:restriction[@name = $postfix])
-                    then 
-                        let $ct := $schema//xs:restriction[@name = $postfix]
-                        return
-                            if ($ct)
-                            then xsd2json:restriction($ct, $model)
-                            else fn:error(xs:QName('xsd2json:err057'), 'missing restriction', $postfix)
-                    else if ($schema//xs:extension[@name = $postfix])
-                    then 
-                        let $ct := $schema//xs:extension[@name = $postfix]
-                        return
-                            if ($ct)
-                            then xsd2json:extension($ct, $model)
-                            else fn:error(xs:QName('xsd2json:err057'), 'missing extension', $postfix)
-                    else map:merge(()),
-
-        
-        if ($node/xs:choice) then xsd2json:choice($node/xs:choice, $model)
-        else xsd2json:passthru($node, $model)
-    ))
+                    if ($ct)
+                    then map:get(xsd2json:complexType($ct, $model), $postfix)
+                    else fn:error(xs:QName('xsd2json:err057'), 'missing complexType', $postfix)
+            else if ($schema//xs:simpleType[@name = $postfix])
+            then 
+                let $ct := $schema//xs:simpleType[@name = $postfix]
+                return
+                    if ($ct)
+                    then xsd2json:simpleType($ct, $model)
+                    else fn:error(xs:QName('xsd2json:err057'), 'missing simpleType', $postfix)
+            else if ($schema//xs:restriction[@name = $postfix])
+            then 
+                let $ct := $schema//xs:restriction[@name = $postfix]
+                return
+                    if ($ct)
+                    then xsd2json:restriction($ct, $model)
+                    else fn:error(xs:QName('xsd2json:err057'), 'missing restriction', $postfix)
+            else if ($schema//xs:extension[@name = $postfix])
+            then 
+                let $ct := $schema//xs:extension[@name = $postfix]
+                return
+                    if ($ct)
+                    then xsd2json:extension($ct, $model)
+                    else fn:error(xs:QName('xsd2json:err057'), 'missing extension', $postfix)
+            else map { }
+        return 
+            map:merge((
+                for $key in map:keys($content)
+                return 
+                    map:entry(
+                        $key,
+                        if ($key = 'properties')
+                        then map:merge((
+                                map:get($content, $key),
+                                if ($node/xs:choice) 
+                                then 
+                                    xsd2json:choice($node/xs:choice, $model)
+                                else if ($node/xs:all) 
+                                then 
+                                    for $cnode in $node/xs:all/node()
+                                    return xsd2json:passthru($cnode, $model) 
+                                else
+                                    xsd2json:passthru($node, $model)
+                            ))
+                        else map:get($content, $key)
+                    )
+            ))
 };
 
 (:~
@@ -960,8 +1172,8 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                     case element(xs:element)
                         return
                             let $required := xsd2json:require-passthru($child, $model)
-                            let $arrays := xsd2json:maxOccurs-passthru($child, $model)
-                            let $emodel := map:merge(($model, $arrays))
+                            let $maxOccurs := xsd2json:maxOccurs-passthru($child, $model)
+                            let $emodel := map:merge(($model, $maxOccurs))
                             let $enhance := map:remove($emodel, 'noDoc')
                             return 
                                 map:merge((
@@ -972,7 +1184,14 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                                     map:entry('additionalProperties', fn:false()),
                                     if (fn:count($required) gt 0) 
                                     then 
-                                        map:entry('required', array { fn:distinct-values($required) } ) 
+                                        map:entry(
+                                            'required', 
+                                            array { 
+                                                for $item in fn:distinct-values($required)
+                                                order by $item
+                                                return $item 
+                                            } 
+                                        ) 
                                     else 
                                         ()
                                 ))
@@ -1051,7 +1270,12 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
                 then
                     map:entry(
                         'required',
-                        array { xsd2json:require-dispatch($node, $model) }
+                        array { 
+                            for $item in 
+                            xsd2json:require-dispatch($node, $model) 
+                            order by $item
+                            return $item 
+                        }
                     )
                 else
                     (),
@@ -1734,10 +1958,14 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
  : Child Elements:
 
  :)
-    let $maxOccurs := if ($node/@maxOccurs) then $node/@maxOccurs/string() else '1'
+    let $maximums := if (map:contains($model, 'maxOccurs')) then map:get($model, 'maxOccurs') else map { }
+    let $minimums := if (map:contains($model, 'minOccurs')) then map:get($model, 'minOccurs') else map { }
     return
     if ($node/@name)
     then 
+        let $minOccurs := if (map:contains($minimums, $node/@name)) then map:get($minimums, $node/@name) else '1'
+        let $maxOccurs := if (map:contains($maximums, $node/@name)) then map:get($maximums, $node/@name) else '1'
+        return
         if ($node/@abstract/string() = 'true')
         then map:entry(
                         $node/@name/string(), 
@@ -1807,13 +2035,15 @@ declare function xsd2json:element($node as node(), $model as map(*)) as map(*) {
                         return 
                             map:merge((
                                 map:entry('type', 'array'), 
-                                map:entry('minItems', xs:integer(($node/@minOccurs/string(), if (fn:exists($node/following-sibling::xs:element[@name = $node/@name])) then fn:count($node/following-sibling::xs:element[@name = $node/@name]) + 1 else (), '1')[1])), 
+                                map:entry('minItems', xs:integer($minOccurs)), 
                                 map:entry('maxItems', xs:integer($maxOccurs)), 
                                 map:entry('items', map:merge((map:entry('type', 'object'), $content)))
                             ))
             )
     else let $postfix := xsd2json:postfix-from-ref($node)
         let $schema := xsd2json:schema-from-ref($node, $model)
+        let $minOccurs := if (map:contains($minimums, $postfix)) then map:get($minimums, $postfix) else '1'
+        let $maxOccurs := if (map:contains($maximums, $postfix)) then map:get($maximums, $postfix) else '1'
         return
             if ($schema//xs:element[@name = $postfix])
             then 
@@ -2373,18 +2603,15 @@ declare function xsd2json:sequence($node as node(), $model as map(*)) as map(*) 
  : Child Elements:
 
  :)
-    let $err := trace(map:get($model, 'maxOccurs'), 'The value of $var1 is: ')
-    let $enhance := map:remove($model, 'noDoc')
-    return
-    if (map:get($model, 'maxOccurs') = 'unbounded')
-    then
-    map:merge((
-        map:entry('type', 'array'),
-        map:entry('items', array { map:merge(xsd2json:passthru($node, $model)) } )
-    ))
-    else
-        let $required := xsd2json:require-passthru($node, $model)
-        let $arrays := xsd2json:maxOccurs-passthru($node, $model)
+        let $minOccurs := map:merge((
+                            xsd2json:minOccurs-passthru($node, $model),
+                            for $attr in ($node/../xs:attribute, $node/../xs:attributeGroup)
+                            return xsd2json:minOccurs-passthru($attr, $model)
+                          ))
+        let $maxOccurs := xsd2json:maxOccurs-passthru($node, $model)
+        let $required := for $key in map:keys($minOccurs)
+                         order by $key
+                         return if (map:get($minOccurs, $key) gt 0) then $key else ()
         return
             map:merge((
                 map:entry('type', 'object'),
@@ -2395,12 +2622,12 @@ declare function xsd2json:sequence($node as node(), $model as map(*)) as map(*) 
                         return 
                             typeswitch($cnode)
                             case element(xs:choice) return ()
-                            default return xsd2json:dispatch($cnode, map:merge(($model, $arrays)))
+                            default return xsd2json:dispatch($cnode, map:merge(($model, map:entry('maxOccurs', $maxOccurs), map:entry('minOccurs', $minOccurs))))
                     )
                 ),
                 map:entry('additionalProperties', if ($node/xs:any) then fn:true() else fn:false()),
                 if (fn:count($required) gt 0) 
-                then map:entry('required', array { fn:distinct-values($required) } ) 
+                then map:entry('required', array { $required } ) 
                 else (),
                 (: oneOf needs to be outside of properties :)
                 for $cnode in $node/xs:choice

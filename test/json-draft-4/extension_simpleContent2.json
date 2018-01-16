@@ -1,16 +1,25 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string"
+    "definitions": {"pets": {
+        "properties": {
+            "@value": {
+                "xsdType": "integer",
+                "xsdMapping": "restrictive",
+                "isAttribute": true,
+                "type": "integer"
+            },
+            "value": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "type": "string"
+            }
         },
-        "@value": {
-          "type": "integer"
-        }
-      },
-      "required": ["value"]
-    }
-  }
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["value"]
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "extension_simpleContent2.json#"
 }

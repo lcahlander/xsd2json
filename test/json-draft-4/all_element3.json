@@ -15,8 +15,8 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-            "dog",
-            "cat"
+            "cat",
+            "dog"
         ]
     }},
     "$schema": "http://json-schema.org/draft-04/schema#",

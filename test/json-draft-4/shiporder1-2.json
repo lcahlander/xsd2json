@@ -27,9 +27,9 @@
     "type": "object",
     "id": "shiporder1-2.json#",
     "required": [
-        "name",
         "address",
         "city",
-        "country"
+        "country",
+        "name"
     ]
 }

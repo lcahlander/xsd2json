@@ -1,16 +1,46 @@
 {
-  "allOf": [
-    {
-      "$ref":"#/definitions/yesno"
-    }
-  ],
-  "definitions": {
-    "yesno": {
-      "type": "string",
-      "enum": [
-        "yes",
-        "no"
-      ]
-    }
-  }
+    "definitions": {"yesno": {
+        "enum": [
+            "yes",
+            "no"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "yes",
+                "description": ""
+            },
+            {
+                "value": "no",
+                "description": ""
+            }
+        ],
+        "type": "string"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"dog": {
+        "enum": [
+            "yes",
+            "no"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "yes",
+                "description": ""
+            },
+            {
+                "value": "no",
+                "description": ""
+            }
+        ],
+        "type": "string"
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "restriction_enumeration4.json#",
+    "required": ["dog"]
 }

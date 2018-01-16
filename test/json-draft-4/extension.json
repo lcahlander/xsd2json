@@ -1,19 +1,49 @@
 {
-  "definitions": {
-    "pets": {
-      "type": "object",
-      "properties": {
-        "dog": {
-          "type": "string"
+    "definitions": {
+        "morePets": {
+            "properties": {
+                "cat": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                },
+                "dog": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "cat",
+                "dog"
+            ]
         },
-        "cat": {
-          "type": "string"
+        "pets": {
+            "properties": {
+                "cat": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                },
+                "dog": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "cat",
+                "dog"
+            ]
         }
-      },
-      "required": ["dog", "cat"]
     },
-    "morePets": {
-      "$ref": "#/definitions/pets"
-    }
-  }
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "extension.json#"
 }

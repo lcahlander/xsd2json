@@ -41,5 +41,6 @@
     "version": "0.0.1",
     "additionalProperties": false,
     "type": "object",
-    "id": "schema2.json#"
+    "id": "schema2.json#",
+    "required": ["pet"]
 }

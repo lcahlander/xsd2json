@@ -24,9 +24,9 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-            "number",
             "customer",
-            "items"
+            "items",
+            "number"
         ]
     }},
     "$schema": "http://json-schema.org/draft-04/schema#",
