@@ -1,18 +1,66 @@
 {
-  "allOf": [
-    {
-      "$ref": "#/definitions/Pets"
-    }
-  ],
-  "definitions": {
-    "Pets": {
-      "type": "string",
-      "enum": [
-        "cat",
-        "dog",
-        "parrot",
-        "hamster"
-      ]
-    }
-  }
+    "definitions": {"Pets": {
+        "enum": [
+            "cat",
+            "dog",
+            "parrot",
+            "hamster"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "cat",
+                "description": ""
+            },
+            {
+                "value": "dog",
+                "description": ""
+            },
+            {
+                "value": "parrot",
+                "description": ""
+            },
+            {
+                "value": "hamster",
+                "description": ""
+            }
+        ],
+        "type": "string"
+    }},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {"dog": {
+        "enum": [
+            "cat",
+            "dog",
+            "parrot",
+            "hamster"
+        ],
+        "xsdType": "string",
+        "xsdMapping": "restrictive",
+        "xsdEnum": [
+            {
+                "value": "cat",
+                "description": ""
+            },
+            {
+                "value": "dog",
+                "description": ""
+            },
+            {
+                "value": "parrot",
+                "description": ""
+            },
+            {
+                "value": "hamster",
+                "description": ""
+            }
+        ],
+        "type": "string"
+    }},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "type": "object",
+    "id": "type-with-capital-letter2.json#",
+    "required": ["dog"]
 }

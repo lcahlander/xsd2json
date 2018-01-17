@@ -27,7 +27,25 @@ declare namespace xs="http://www.w3.org/2001/XMLSchema";
 declare variable $xsd2json:RESTRICTIVE := 'restrictive';
 declare variable $xsd2json:SCHEMAID := 'schemaId';
 declare variable $xsd2json:KEEP_NAMESPACES := 'keepNamespaces';
+declare variable $xsd2json:DATATYPES := ( 'string', 'normalizedString', 'token', 'base64Binary', 'hexBinary', 'integer', 'positiveInteger', 'negativeInteger', 'nonNegativeInteger', 'nonPositiveInteger', 'long', 'unsignedLong', 'int', 'unsignedInt', 'short', 'unsignedShort', 'byte', 'unsignedByte', 'decimal', 'float', 'double', 'duration', 'dateTime', 'date', 'time', 'gYear', 'gYearMonth', 'gMonth', 'gMonthDay', 'gDay', 'Name', 'QName', 'NCName', 'anyURI', 'language', 'ID', 'IDREF', 'IDREFS', 'ENTITY', 'ENTITIES', 'NMTOKEN', 'NMTOKENS', 'anySimpleType', 'anyType', 'token', 'decimal', 'boolean' );
 
+declare function xsd2json:prefix-type($bases as map(*), $attr) {
+    let $value := xs:string($attr)
+    let $prefixed := fn:contains($value, ':')
+    return
+        if ($prefixed)
+        then
+            if (map:get($bases, fn:substring-before($value, ':')) = "http://www.w3.org/2001/XMLSchema")
+            then  attribute { $attr/name() } { 'xs:' || fn:substring-after($value, ':') }
+            else $attr
+        else 
+            if (map:get($bases, '') = "http://www.w3.org/2001/XMLSchema")
+            then 
+                if ($xsd2json:DATATYPES = $value)
+                then attribute { $attr/name() } { 'xs:' || $value }
+                else $attr
+            else $attr
+};
 
 declare function xsd2json:change-element-ns-deep
   ( $nodes as node()* ,
@@ -35,6 +53,10 @@ declare function xsd2json:change-element-ns-deep
     $prefix as xs:string )  as node()* {
 
   for $node in $nodes
+  let $bases := map:merge((
+                    for $prefix in fn:in-scope-prefixes($node/ancestor-or-self::xs:schema)
+                    return map:entry($prefix, xs:string(fn:namespace-uri-for-prefix($prefix, $node/ancestor-or-self::xs:schema)))
+                ))
   return if ($node instance of element())
          then (element
                {QName ($newns,
@@ -43,7 +65,14 @@ declare function xsd2json:change-element-ns-deep
                                     then ''
                                     else ':',
                                     local-name($node)))}
-               {$node/@*,
+               {
+                for $attr in $node/@*
+                return
+                    switch ($attr/name())
+                    case 'type' return xsd2json:prefix-type($bases, $attr)
+                    case 'base' return xsd2json:prefix-type($bases, $attr)
+                    default return $attr
+                    ,
                 xsd2json:change-element-ns-deep($node/node(),
                                            $newns, $prefix)})
          else if ($node instance of document-node())

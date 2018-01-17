@@ -23,5 +23,6 @@
     "version": "0.0.1",
     "additionalProperties": false,
     "type": "object",
-    "id": "include.json#"
+    "id": "include.json#",
+    "required": ["pet"]
 }
