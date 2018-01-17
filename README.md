@@ -8,6 +8,10 @@ The options that are supported are:
 * 'schemaId'       - the name of the schema - default is 'output.json'
 * 'restrictive'    - Maps the XSD data types to the more restrictive properties. - default is true
 
+# Gist
+
+The Gist link for the library module is https://gist.github.com/lcahlander/0eecf499dfe307d7aecbb15f775bd4f2
+
 # Running from Command Line
 ## Requirements
 
