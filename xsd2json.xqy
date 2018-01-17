@@ -2505,8 +2505,8 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
     map:merge((
             if (xsd2json:is-xsd-datatype($node/@base))
             then (
-                    xsd2json:dataType($node/@base, $model), 
-                    xsd2json:passthru($node, $model)
+                    xsd2json:passthru($node, $model),
+                    xsd2json:dataType($node/@base, $model)
                  )
             else
                 let $postfix := xsd2json:postfix-from-qname($node/@base)
