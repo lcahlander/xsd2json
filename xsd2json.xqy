@@ -97,6 +97,8 @@ declare function xsd2json:change-element-ns-deep
 declare function xsd2json:run($base as node(), $options as map(*)) as map(*) {
 let $m := map:merge((xsd2json:parse-level('target', $base, ()), $options))
 let $base-w-includes := map:get($m, 'target')
+let $referred-to-element-names := fn:distinct-values($base-w-includes//xs:element/@ref/string())
+let $root-elements := $base-w-includes/xs:element[fn:not(./@name = $referred-to-element-names)]
 
 return 
     map:merge((
@@ -119,9 +121,9 @@ return
         )
     else 
         (),
-    if ((fn:count($base-w-includes/xs:element) eq 1) and fn:not(($base-w-includes/xs:complexType[@name], $base-w-includes/xs:simpleType[@name])))
+    if ((fn:count($root-elements) eq 1) and fn:not(($base-w-includes/xs:complexType[@name], $base-w-includes/xs:simpleType[@name])))
     then
-        let $element := $base-w-includes/xs:element
+        let $element := $root-elements
         let $documentation := ($base-w-includes/xs:annotation/xs:documentation, $element/xs:annotation/xs:documentation, $element/xs:complexType/xs:annotation/xs:documentation)
         return
     (
@@ -132,21 +134,21 @@ return
         xsd2json:passthru($element, map:merge(($m, map:entry('noDoc', fn:true())))),
         map:entry('additionalProperties', fn:ends-with($element/@type, 'anyType'))
     )
-    else if (fn:count($base-w-includes/xs:element) = 0)
+    else if (fn:count($root-elements) = 0)
     then
         map:merge((
             xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
             map:entry('additionalProperties', fn:false()),
             map:entry('type', 'object')
         ))
-    else if (fn:count($base-w-includes/xs:element) gt 1)
+    else if (fn:count($root-elements) gt 1)
     then
     (
         xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
         map:entry(
             'oneOf', 
             array { 
-                for $element in $base-w-includes/xs:element
+                for $element in $root-elements
                 return 
                     map:merge((
                         map:entry('properties', xsd2json:element($element, $m)),
@@ -164,7 +166,7 @@ return
     else
     (
         xsd2json:documentation($base-w-includes/xs:annotation/xs:documentation, map { }),
-        for $element in $base-w-includes/xs:element
+        for $element in $root-elements
         return 
             map:merge((
                 map:entry('properties', xsd2json:element($element, $m)),
@@ -1198,6 +1200,8 @@ declare function xsd2json:choice($node as node(), $model as map(*)) as map(*) {
                 return 
                     typeswitch($child)
                     case element(xs:annotation) return ()
+                    case element(xs:sequence)
+                        return map:merge((xsd2json:sequence($child, $model)))
                     case element(xs:element)
                         return
                             let $required := xsd2json:require-passthru($child, $model)
@@ -1288,6 +1292,8 @@ declare function xsd2json:complexType($node as node(), $model as map(*)) as map(
         then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:simpleContent($node/xs:simpleContent, $model))
         else if ($node/xs:sequence)
         then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:sequence($node/xs:sequence, $model))
+        else if ($node/xs:choice)
+        then for $choice in $node/xs:choice return xsd2json:choice($choice, $model)
         else if ($node/xs:all)
         then (map:entry('type', 'object'), map:entry('additionalProperties', fn:false()), xsd2json:all($node/xs:all, $model))
         else if ($node/xs:attribute)

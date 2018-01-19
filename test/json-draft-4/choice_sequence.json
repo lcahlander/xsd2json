@@ -1,0 +1,139 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "version": "0.0.1",
+    "additionalProperties": false,
+    "id": "choice_sequence.json#",
+    "oneOf": [
+        {
+            "properties": {"responseIdentifier": {
+                "xsdType": "string",
+                "xsdMapping": "restrictive",
+                "maxLength": 36,
+                "minLength": 36,
+                "type": "string"
+            }},
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["responseIdentifier"]
+        },
+        {
+            "properties": {
+                "error": {
+                    "properties": {
+                        "errorType": {
+                            "enum": [
+                                "validationError",
+                                "Bad Request",
+                                "mismatchedFileSizeError",
+                                "AuthorizationError",
+                                "infectedFileDetected",
+                                "NotFoundError",
+                                "internalError",
+                                "InternalServerError"
+                            ],
+                            "xsdType": "string",
+                            "xsdMapping": "restrictive",
+                            "xsdEnum": [
+                                {
+                                    "value": "validationError",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "Bad Request",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "mismatchedFileSizeError",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "AuthorizationError",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "infectedFileDetected",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "NotFoundError",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "internalError",
+                                    "description": ""
+                                },
+                                {
+                                    "value": "InternalServerError",
+                                    "description": ""
+                                }
+                            ],
+                            "type": "string"
+                        },
+                        "errors": {
+                            "properties": {
+                                "path": {
+                                    "xsdType": "string",
+                                    "xsdMapping": "restrictive",
+                                    "type": "string"
+                                },
+                                "apiMessage": {
+                                    "xsdType": "string",
+                                    "xsdMapping": "restrictive",
+                                    "type": "string"
+                                },
+                                "errorCode": {
+                                    "enum": [
+                                        "validation_error",
+                                        "bad_request"
+                                    ],
+                                    "xsdType": "string",
+                                    "xsdMapping": "restrictive",
+                                    "xsdEnum": [
+                                        {
+                                            "value": "validation_error",
+                                            "description": ""
+                                        },
+                                        {
+                                            "value": "bad_request",
+                                            "description": ""
+                                        }
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                                "apiMessage",
+                                "errorCode",
+                                "path"
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["errorType"]
+                },
+                "requestId": {
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                },
+                "resultType": {
+                    "enum": ["ERROR"],
+                    "xsdType": "string",
+                    "xsdMapping": "restrictive",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "error",
+                "requestId",
+                "resultType"
+            ]
+        }
+    ]
+}

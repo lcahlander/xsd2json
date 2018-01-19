@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="Response">
+        <xs:complexType>
+            <xs:choice>
+                <xs:sequence>
+                    <xs:element name="responseIdentifier">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:minLength value="36"/>
+                                <xs:maxLength value="36"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:sequence>
+                    <xs:element fixed="ERROR" name="resultType" type="xs:string"/>
+                    <xs:element name="error">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="errorType">
+                                    <xs:simpleType>
+                                        <xs:restriction base="xs:string">
+                                            <xs:enumeration value="validationError">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="Bad Request">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="mismatchedFileSizeError">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="AuthorizationError">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="infectedFileDetected">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="NotFoundError">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="internalError">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                            <xs:enumeration value="InternalServerError">
+                                                <xs:annotation>
+                                                  <xs:documentation/>
+                                                </xs:annotation>
+                                            </xs:enumeration>
+                                        </xs:restriction>
+                                    </xs:simpleType>
+                                </xs:element>
+                                <xs:element maxOccurs="unbounded" minOccurs="0" name="errors">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="errorCode">
+                                                <xs:simpleType>
+                                                  <xs:restriction base="xs:string">
+                                                      <xs:enumeration value="validation_error">
+                                                          <xs:annotation>
+                                                              <xs:documentation/>
+                                                          </xs:annotation>
+                                                      </xs:enumeration>
+                                                      <xs:enumeration value="bad_request">
+                                                          <xs:annotation>
+                                                              <xs:documentation/>
+                                                          </xs:annotation>
+                                                      </xs:enumeration>
+                                                  </xs:restriction>
+                                                </xs:simpleType>
+                                            </xs:element>
+                                            <xs:element name="path" type="xs:string"/>
+                                            <xs:element name="apiMessage" type="xs:string"/>
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="requestId" type="xs:string"/>
+                </xs:sequence>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
