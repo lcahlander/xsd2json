@@ -1402,8 +1402,6 @@ declare function xsd2json:dataType-restrictive($type as xs:string) as map(*) {
     let $xsdType := xsd2json:postfix-from-qname($type)
     return
     map:merge((
-        map:entry('xsdType', $xsdType),
-        map:entry('xsdMapping', 'restrictive'),
         switch($xsdType) 
             case 'string' return map {
                 'type': 'string'
@@ -1651,8 +1649,6 @@ declare function xsd2json:dataType-non-restrictive($type as xs:string) as map(*)
     let $xsdType := xsd2json:postfix-from-qname($type)
     return
     map:merge((
-        map:entry('xsdType', $xsdType),
-        map:entry('xsdMapping', 'non-restrictive'),
         switch($xsdType) 
             case 'string' return map {
                 'type': 'string'
@@ -2551,16 +2547,6 @@ declare function xsd2json:restriction($node as node(), $model as map(*)) as map(
         
                 if ($node/xs:enumeration)
                 then (
-                    map:entry(
-                        'xsdEnum', 
-                        array { 
-                            for $enumeration in $node/xs:enumeration 
-                            return map:merge((
-                                map:entry('value', $enumeration/@value/string()), 
-                                map:entry('description', fn:normalize-space($enumeration/string()))
-                            )) 
-                        }
-                    ),
                     map:entry(
                         'enum', 
                         array { 
