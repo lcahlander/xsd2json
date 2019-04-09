@@ -191,15 +191,22 @@ return
  : @param   $model a map(*) used for passing additional information between the levels
  :)
 declare function xsd2json:schema-from-qname($node as node(), $qname as xs:string, $model as map(*)) as node() {
-    if (fn:contains($qname, ':'))
-    then 
-        let $prefix := fn:substring-before($qname, ':')
-        let $postfix := fn:substring-after($qname, ':')
-        let $ns := map:get($model, $prefix)
-        return map:get($model, $ns)
-    else $node/ancestor::xs:schema (:
-        let $ns := fn:namespace-uri($node)
-        return map:get($model, xs:string($ns)):)
+    let $ancestor := $node/ancestor::xs:schema
+    let $retval :=
+        if (fn:contains($qname, ':'))
+        then 
+            let $prefix := fn:substring-before($qname, ':')
+            let $postfix := fn:substring-after($qname, ':')
+            let $ns := map:get($model, $prefix)
+            let $s := if (fn:exists($ns)) 
+                      then map:get($model, $ns) 
+                      else () 
+            return 
+                if (fn:exists($s)) 
+                then $s 
+                else $ancestor 
+        else $ancestor
+    return ($retval, map:get($model, 'target'))[1]
 };
 
 declare function xsd2json:is-xsd-datatype($name as xs:string) as xs:boolean {
